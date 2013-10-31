@@ -1,6 +1,3 @@
-hector
-======
-
 Golang machine learning lib
 
 # Supported Algorithms
@@ -20,3 +17,4 @@ go build hector-cv.go
 Here, Method include [lr, ftrl, dt, rf, fm, rdt]
 
 Data Path is location of your dataset, we support LibSVM data format
+

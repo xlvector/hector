@@ -1,3 +1,17 @@
+*.train
+*.test
+dwfa
+*.csv
+*.txt
+*.zip
+*.py
+*.data
+dw
+dwcv
+test
+ftrl
+lr
+rdt
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
@@ -20,3 +34,5 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+
+*.tsv
