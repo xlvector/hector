@@ -23,7 +23,7 @@ func (algo *LogisticRegression) Init(params map[string]string) {
 	algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
 }
 
-func (algo *LogisticRegression) Train(dataset DataSet) {
+func (algo *LogisticRegression) Train(dataset * DataSet) {
 	algo.Model = make(map[int64]float64)
 	for sample := range dataset.Samples {
 			prediction := algo.Predict(sample)
@@ -39,7 +39,7 @@ func (algo *LogisticRegression) Train(dataset DataSet) {
 		}
 }
 
-func (algo *LogisticRegression) Predict(sample Sample) float64 {
+func (algo *LogisticRegression) Predict(sample * Sample) float64 {
 	ret := 0.0
 	for _, feature := range sample.Features {
 		model_feature_value, ok := algo.Model[feature.Id]

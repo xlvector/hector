@@ -10,8 +10,7 @@ func AlgorithmRun(classifier Classifier, train_path string, test_path string, pa
 	
 	steps, _ := strconv.ParseInt(params["steps"], 10, 64)
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
-	train_dataset := DataSet{}
-	train_dataset.Samples = make(chan Sample, 1000)
+	train_dataset := NewDataSet()
 	var err error
 	var wait sync.WaitGroup
 	wait.Add(2)
@@ -33,7 +32,7 @@ func AlgorithmRun(classifier Classifier, train_path string, test_path string, pa
 	
 	wait.Add(2)
 	test_dataset := DataSet{}
-	test_dataset.Samples = make(chan Sample, 1000)
+	test_dataset.Samples = make(chan *Sample, 1000)
 	go func(){
 		err = test_dataset.Load(test_path, global, 1)
 		wait.Done()

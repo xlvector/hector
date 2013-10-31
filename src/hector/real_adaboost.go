@@ -35,7 +35,7 @@ func (c *RealAdaboost) Init(params map[string]string){
 	c.cart.Init(params)
 }
 
-func (c *RealAdaboost) Train(dataset DataSet){
+func (c *RealAdaboost) Train(dataset * DataSet){
 	samples := []*MapBasedSample{}
 	w := []float64{}
 	for sample := range dataset.Samples{
@@ -66,7 +66,7 @@ func (c *RealAdaboost) Train(dataset DataSet){
 	}
 }
 
-func (c *RealAdaboost) Predict(sample Sample) float64 {
+func (c *RealAdaboost) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
 	total := 0.0
 	for _, tree := range c.trees {

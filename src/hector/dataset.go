@@ -8,16 +8,16 @@ import (
 )
 
 type DataSet struct {
-	Samples chan Sample
+	Samples chan *Sample
 }
 
 func NewDataSet() *DataSet {
 	ret := DataSet{}
-	ret.Samples = make(chan Sample)
+	ret.Samples = make(chan *Sample, 1000)
 	return &ret
 }
 
-func (d *DataSet) AddSample(sample Sample){
+func (d *DataSet) AddSample(sample * Sample){
 	d.Samples <- sample
 }
 
@@ -66,7 +66,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64, steps int) err
 			if global_bias_feature_id >= 0{
 				sample.Features = append(sample.Features, Feature{global_bias_feature_id, 1.0})
 			}
-			d.Samples <- sample	
+			d.Samples <- &sample	
 		}
 		if scanner.Err() != nil{
 			return scanner.Err()

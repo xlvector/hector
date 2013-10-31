@@ -25,7 +25,7 @@ func (dt *RandomForest) Init(params map[string]string){
 	dt.params.FeatureCount = float64(feature_count)	
 }
 
-func (dt *RandomForest) Train(dataset DataSet) {
+func (dt *RandomForest) Train(dataset * DataSet) {
 	samples := []*MapBasedSample{}
 	featureset := make(map[int64]bool)
 	for sample := range dataset.Samples{
@@ -63,7 +63,7 @@ func (dt *RandomForest) Train(dataset DataSet) {
 	}
 }
 
-func (dt *RandomForest) Predict(sample Sample) float64 {
+func (dt *RandomForest) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
 	predictions := 0.0
 	total := 0.0

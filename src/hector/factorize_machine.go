@@ -16,7 +16,7 @@ type FactorizeMachineParams struct {
 	FactorNumber int
 }
 
-func (c *FactorizeMachine) Predict(sample Sample) float64 {
+func (c *FactorizeMachine) Predict(sample * Sample) float64 {
 	for _, f := range sample.Features{
 		c.w.RandomInit(f.Id, 0.1)
 		for k, _ := range c.v{
@@ -48,7 +48,7 @@ func (c *FactorizeMachine) Init(params map[string]string) {
 	}
 }
 
-func (c *FactorizeMachine) Train(dataset DataSet) {
+func (c *FactorizeMachine) Train(dataset * DataSet) {
 	for sample := range dataset.Samples {
 		pred := c.Predict(sample)
 		err := sample.Label - pred

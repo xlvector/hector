@@ -31,13 +31,13 @@ func (rvm *RVM) CreateNewSample(sample *Sample) *Sample{
 	return new_sample	
 }
 
-func (rvm *RVM) Train(dataset DataSet){
+func (rvm *RVM) Train(dataset * DataSet){
 	samples := []*Sample{}
 	for sample := range dataset.Samples{
 		if rand.Float64() < 0.1{
 			rvm.centers = append(rvm.centers, sample.GetFeatureVector())
 		}
-		samples = append(samples, &sample)		
+		samples = append(samples, sample)		
 	}
 	
 	new_dataset := NewDataSet()
@@ -50,20 +50,20 @@ func (rvm *RVM) Train(dataset DataSet){
 	wait.Add(2)
 	go func(){
 		for _, sample := range new_samples{
-			new_dataset.AddSample(*sample)
+			new_dataset.AddSample(sample)
 		}
 		close(new_dataset.Samples)
 		wait.Done()
 	}()
 	
 	go func(){
-		rvm.lr.Train(*new_dataset)
+		rvm.lr.Train(new_dataset)
 		wait.Done()
 	}()
 	wait.Wait()
 }
 
-func (rvm *RVM) Predict(sample Sample) float64{
-	nsample := rvm.CreateNewSample(&sample)
-	return rvm.lr.Predict(*nsample)
+func (rvm *RVM) Predict(sample * Sample) float64{
+	nsample := rvm.CreateNewSample(sample)
+	return rvm.lr.Predict(nsample)
 }

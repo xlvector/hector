@@ -167,7 +167,7 @@ func (dt *CART) PredictBySingleTree(tree *Tree, sample *MapBasedSample) *TreeNod
 	return node
 }
 
-func (dt *CART) Train(dataset DataSet) {
+func (dt *CART) Train(dataset * DataSet) {
 	samples := []*MapBasedSample{}
 	for sample := range dataset.Samples{
 		msample := sample.ToMapBasedSample()
@@ -176,7 +176,7 @@ func (dt *CART) Train(dataset DataSet) {
 	dt.tree = dt.SingleTreeBuild(samples, nil)
 }
 
-func (dt *CART) Predict(sample Sample) float64 {
+func (dt *CART) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
 	node := dt.PredictBySingleTree(&dt.tree, msample)
 	return node.prediction

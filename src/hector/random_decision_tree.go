@@ -160,7 +160,7 @@ func (rdt *RandomDecisionTree) RandomShuffle(features []Feature){
 	}
 }
 
-func (rdt *RandomDecisionTree) Train(dataset DataSet) {
+func (rdt *RandomDecisionTree) Train(dataset * DataSet) {
 	samples := []*MapBasedSample{}
 	for sample := range dataset.Samples{
 		samples = append(samples, sample.ToMapBasedSample())
@@ -192,7 +192,7 @@ func (rdt *RandomDecisionTree) Train(dataset DataSet) {
 	}
 }
 
-func (rdt *RandomDecisionTree) Predict(sample Sample) float64 {
+func (rdt *RandomDecisionTree) Predict(sample * Sample) float64 {
 	ret := 0.0
 	total := 0.0
 	msample := sample.ToMapBasedSample()

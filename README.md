@@ -1,10 +1,13 @@
+hector
+======
+
 Golang machine learning lib
 
 # Supported Algorithms
 
-Logistic Regression (SGD, FTRL)
-Factorized Machine
-CART, Random Forest, Random Decision Tree
+1. Logistic Regression (SGD, FTRL)
+2. Factorized Machine
+3. CART, Random Forest, Random Decision Tree
 
 # How to Run
 
@@ -18,3 +21,6 @@ Here, Method include [lr, ftrl, dt, rf, fm, rdt]
 
 Data Path is location of your dataset, we support LibSVM data format
 
+For example, you can run random forest on test data by:
+
+./hector-cv --train ../data/titanic --method rf

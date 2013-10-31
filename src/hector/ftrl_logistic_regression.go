@@ -26,7 +26,7 @@ type FTRLLogisticRegression struct {
 	Params FTRLLogisticRegressionParams
 }
 
-func (algo *FTRLLogisticRegression) Predict(sample Sample) float64 {
+func (algo *FTRLLogisticRegression) Predict(sample * Sample) float64 {
 	ret := 0.0
 	for _, feature := range sample.Features {
 		model_feature_value, ok := algo.Model[feature.Id]
@@ -45,7 +45,7 @@ func (algo *FTRLLogisticRegression) Init(params map[string]string) {
 	algo.Params.Beta, _ = strconv.ParseFloat(params["beta"], 64)
 }
 
-func (algo *FTRLLogisticRegression) Train(dataset DataSet) {
+func (algo *FTRLLogisticRegression) Train(dataset * DataSet) {
 	for sample := range dataset.Samples {
 		prediction := algo.Predict(sample)
 		err := sample.LabelDoubleValue() - prediction
