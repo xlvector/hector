@@ -1,0 +1,3 @@
+go build hector-run.go
+go build hector-cv.go
+go build hector-stack.go
