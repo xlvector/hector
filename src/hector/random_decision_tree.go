@@ -15,6 +15,10 @@ type TreeNode struct {
 	feature_split      Feature
 }
 
+func (t *TreeNode) ToString() string {
+	return strconv.FormatInt(t.feature_split.Id, 10) + ":" + strconv.FormatFloat(t.feature_split.Value, 'g', 3, 64)
+}
+
 func (t *TreeNode) AddSample(k int) {
 	t.samples = append(t.samples, k)
 }
@@ -162,7 +166,7 @@ func (rdt *RandomDecisionTree) RandomShuffle(features []Feature){
 
 func (rdt *RandomDecisionTree) Train(dataset * DataSet) {
 	samples := []*MapBasedSample{}
-	for sample := range dataset.Samples{
+	for _, sample := range dataset.Samples{
 		samples = append(samples, sample.ToMapBasedSample())
 	}
 	forest := make(chan *Tree, rdt.params.TreeCount)

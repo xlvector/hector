@@ -7,8 +7,7 @@ import(
 type LogisticRegressionParams struct {
 	LearningRate float64
 	Regularization float64
-	Steps int64
-	GlobalBiasFeatureId int64
+	Steps int
 }
 
 type LogisticRegression struct {
@@ -21,11 +20,14 @@ func (algo *LogisticRegression) Init(params map[string]string) {
 	
 	algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
 	algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
+	steps, _ := strconv.ParseInt(params["steps"], 10, 32)
+	algo.Params.Steps = int(steps)
 }
 
 func (algo *LogisticRegression) Train(dataset * DataSet) {
 	algo.Model = make(map[int64]float64)
-	for sample := range dataset.Samples {
+	for step := 0; step < algo.Params.Steps; step++{
+		for _, sample := range dataset.Samples {
 			prediction := algo.Predict(sample)
 			err := sample.LabelDoubleValue() - prediction
 			for _, feature := range sample.Features {
@@ -37,6 +39,8 @@ func (algo *LogisticRegression) Train(dataset * DataSet) {
 				algo.Model[feature.Id] = model_feature_value
 			}
 		}
+		algo.Params.LearningRate *= 0.9
+	}
 }
 
 func (algo *LogisticRegression) Predict(sample * Sample) float64 {

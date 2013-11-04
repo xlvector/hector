@@ -12,7 +12,7 @@ type LabelPrediction struct {
 type By func(p1, p2 *LabelPrediction) bool
 
 type labelPredictionSorter struct {
-	predictions []LabelPrediction
+	predictions []*LabelPrediction
 	by      By
 }
 
@@ -25,10 +25,10 @@ func (s *labelPredictionSorter) Swap(i, j int) {
 }
 
 func (s *labelPredictionSorter) Less(i, j int) bool {
-	return s.by(&s.predictions[i], &s.predictions[j])
+	return s.by(s.predictions[i], s.predictions[j])
 }
 
-func (by By) Sort(predictions []LabelPrediction) {
+func (by By) Sort(predictions []*LabelPrediction) {
 	sorter := &labelPredictionSorter{
 		predictions: predictions,
 		by:      by,
@@ -36,7 +36,11 @@ func (by By) Sort(predictions []LabelPrediction) {
 	sort.Sort(sorter)
 }
 
-func AUC(predictions []LabelPrediction) float64 {
+func AUC(predictions0 []*LabelPrediction) float64 {
+	predictions := []*LabelPrediction{}
+	for _, pred := range predictions0{
+		predictions = append(predictions, pred)
+	}
 	prediction := func(p1, p2 *LabelPrediction) bool {
 		return p1.Prediction > p2.Prediction
 	}

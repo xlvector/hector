@@ -137,7 +137,7 @@ func InformationValue(dataset *DataSet) map[int64]float64 {
 	feature_weight_labels := make(map[int64]*FeatureLabelDistribution)
 	total := 0
 	positive := 0
-	for sample := range dataset.Samples {
+	for _,sample := range dataset.Samples {
 		total += 1
 		positive += int(sample.Label)
 		for _, feature := range sample.Features {

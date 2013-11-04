@@ -49,7 +49,12 @@ func (c *FactorizeMachine) Init(params map[string]string) {
 }
 
 func (c *FactorizeMachine) Train(dataset * DataSet) {
-	for sample := range dataset.Samples {
+	n := 0
+	for _, sample := range dataset.Samples {
+		n += 1
+		if n % 10000 == 0{
+			c.params.LearningRate *= 0.9
+		}
 		pred := c.Predict(sample)
 		err := sample.Label - pred
 		

@@ -7,6 +7,7 @@ import (
 
 type FTRLLogisticRegressionParams struct {
 	Alpha, Beta, Lambda1, Lambda2 float64
+	Steps int
 }
 
 type FTRLFeatureWeight struct {
@@ -43,25 +44,34 @@ func (algo *FTRLLogisticRegression) Init(params map[string]string) {
 	algo.Params.Lambda1, _ = strconv.ParseFloat(params["lambda1"], 64)
 	algo.Params.Lambda2, _ = strconv.ParseFloat(params["lambda2"], 64)
 	algo.Params.Beta, _ = strconv.ParseFloat(params["beta"], 64)
+	steps, _ := strconv.ParseInt(params["steps"], 10, 32)
+	algo.Params.Steps = int(steps)
+}
+
+func (algo *FTRLLogisticRegression) Clear(){
+	algo.Model = nil
+	algo.Model = make(map[int64]FTRLFeatureWeight)
 }
 
 func (algo *FTRLLogisticRegression) Train(dataset * DataSet) {
-	for sample := range dataset.Samples {
-		prediction := algo.Predict(sample)
-		err := sample.LabelDoubleValue() - prediction
-		for _, feature := range sample.Features {
-			model_feature_value, ok := algo.Model[feature.Id]
-			if !ok {
-				model_feature_value = FTRLFeatureWeight{0.0, 0.0}
+	for step := 0; step < algo.Params.Steps; step++ {
+		for _,sample := range dataset.Samples {
+			prediction := algo.Predict(sample)
+			err := sample.LabelDoubleValue() - prediction
+			for _, feature := range sample.Features {
+				model_feature_value, ok := algo.Model[feature.Id]
+				if !ok {
+					model_feature_value = FTRLFeatureWeight{0.0, 0.0}
+				}
+				zi := model_feature_value.zi
+				ni := model_feature_value.ni
+				gi := -1 * err * feature.Value
+				sigma := (math.Sqrt(ni + gi * gi) - math.Sqrt(ni)) / algo.Params.Alpha
+				wi := model_feature_value.Wi(algo.Params)
+				zi += gi - sigma * wi
+				ni += gi * gi
+				algo.Model[feature.Id] = FTRLFeatureWeight{zi: zi, ni: ni}
 			}
-			zi := model_feature_value.zi
-			ni := model_feature_value.ni
-			gi := -1 * err * feature.Value
-			sigma := (math.Sqrt(ni + gi * gi) - math.Sqrt(ni)) / algo.Params.Alpha
-			wi := model_feature_value.Wi(algo.Params)
-			zi += gi - sigma * wi
-			ni += gi * gi
-			algo.Model[feature.Id] = FTRLFeatureWeight{zi: zi, ni: ni}
 		}
 	}
 }

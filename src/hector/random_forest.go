@@ -14,6 +14,7 @@ type RandomForest struct {
 	trees []Tree
 	params RandomForestParams
 	cart CART
+	continuous_features bool
 }
 
 func (dt *RandomForest) Init(params map[string]string){
@@ -28,13 +29,26 @@ func (dt *RandomForest) Init(params map[string]string){
 func (dt *RandomForest) Train(dataset * DataSet) {
 	samples := []*MapBasedSample{}
 	featureset := make(map[int64]bool)
-	for sample := range dataset.Samples{
+	feature_weights := make(map[int64]float64)
+	for _, sample := range dataset.Samples{
+		if !dt.continuous_features {
+			for _, f := range sample.Features {
+				_, ok := feature_weights[f.Id]
+				if !ok {
+					feature_weights[f.Id] = f.Value
+				}
+				if feature_weights[f.Id] != f.Value {
+					dt.continuous_features = true
+				}
+			}
+		}
 		msample := sample.ToMapBasedSample()
 		samples = append(samples, msample)
 		for fid, _ := range msample.Features {
 			featureset[fid] = true
 		}
 	}
+	dt.cart.continuous_features = dt.continuous_features
 	
 	features := []int64{}
 	for fid, _ := range featureset{
@@ -68,7 +82,7 @@ func (dt *RandomForest) Predict(sample * Sample) float64 {
 	predictions := 0.0
 	total := 0.0
 	for _, tree := range dt.trees{
-		node := dt.cart.PredictBySingleTree(&tree, msample)
+		node, _ := dt.cart.PredictBySingleTree(&tree, msample)
 		predictions += node.prediction
 		total += 1.0
 	}

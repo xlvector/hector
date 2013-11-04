@@ -43,35 +43,15 @@ func SplitFile(input string, total int, part int) (string, string, error) {
 }
 
 func main(){
-	train_path, _, method, params := hector.PrepareParams()
-	total := 10
+	train_path, _, _, method, params := hector.PrepareParams()
+	total := 7
 	
 	average_auc := 0.0
 	for part := 0; part < total; part++ {
 		train, test, _ := SplitFile(train_path, total, part)
-		var classifier hector.Classifier
+		classifier := hector.GetClassifier(method)
 		
-		if method == "lr"{
-			classifier = &(hector.LogisticRegression{})
-		} else if method == "ftrl" {
-			classifier = &(hector.FTRLLogisticRegression{})
-		} else if method == "rdt" {
-			classifier = &(hector.RandomDecisionTree{})
-		} else if method == "cart" {
-			classifier = &(hector.CART{})	
-		} else if method == "rf" {
-			classifier = &(hector.RandomForest{})	
-		} else if method == "rvm" {
-			classifier = &(hector.RVM{})	
-		} else if method == "real-adaboost" {
-			classifier = &(hector.RealAdaboost{})	
-		} else if method == "fm" {
-			classifier = &(hector.FactorizeMachine{})	
-		} else {
-			classifier = &(hector.LogisticRegression{})
-		}
-		
-		auc, _, _ := hector.AlgorithmRun(classifier, train, test, params)
+		auc, _, _ := hector.AlgorithmRun(classifier, train, test, "", params)
 		fmt.Println("AUC:")
 		fmt.Println(auc)
 		average_auc += auc

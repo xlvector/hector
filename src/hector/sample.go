@@ -1,5 +1,26 @@
 package hector
 
+type RawSample struct {
+	Features map[string]string
+	Label float64
+}
+
+func NewRawSample() *RawSample {
+	ret := RawSample{}
+	ret.Features = make(map[string]string)
+	ret.Label = 0.0
+	return &ret
+}
+
+func (s *RawSample) GetFeatureValue(key string) string {
+	value, ok := s.Features[key]
+	if ok {
+		return value
+	} else {
+		return "nil"
+	}
+}
+
 type Sample struct {
 	Features []Feature
 	Label float64

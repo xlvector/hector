@@ -6,10 +6,37 @@ import(
 	"strconv"
 )
 
-func PrepareParams() (string, string, string, map[string]string){
+func GetClassifier(method string) Classifier {
+	var classifier Classifier
+		
+	if method == "lr"{
+		classifier = &(LogisticRegression{})
+	} else if method == "ftrl" {
+		classifier = &(FTRLLogisticRegression{})
+	} else if method == "ep" {
+		classifier = &(EPLogisticRegression{})
+	} else if method == "rdt" {
+		classifier = &(RandomDecisionTree{})
+	} else if method == "cart" {
+		classifier = &(CART{})	
+	} else if method == "rf" {
+		classifier = &(RandomForest{})	
+	} else if method == "fm" {
+		classifier = &(FactorizeMachine{})	
+	} else if method == "sa" {
+		classifier = &(SAOptAUC{})	
+	} else {
+		classifier = &(LogisticRegression{})
+	}
+	return classifier
+}
+
+func PrepareParams() (string, string, string, string, map[string]string){
 	params := make(map[string]string)
 	train_path := flag.String("train", "train.tsv", "path of training file")
 	test_path := flag.String("test", "test.tsv", "path of testing file")
+	pred_path := flag.String("pred", "", "path of pred file")
+	output := flag.String("output", "", "output file path")
 	learning_rate := flag.String("learning-rate", "0.01", "learning rate")
 	regularization := flag.String("regularization", "0.01", "regularization")
 	alpha := flag.String("alpha", "0.1", "alpha of ftrl")
@@ -44,6 +71,7 @@ func PrepareParams() (string, string, string, map[string]string){
 	params["global"] = strconv.FormatInt(*global, 10)
 	params["gini"] = *gini
 	params["factors"] = *factors
+	params["output"] = *output
 	fmt.Println(params)
-	return *train_path, *test_path, *method, params	
+	return *train_path, *test_path, *pred_path, *method, params	
 }
