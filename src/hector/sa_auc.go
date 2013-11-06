@@ -38,17 +38,14 @@ func (algo *SAOptAUC) Train(dataset * DataSet) {
 	}
 	
 	prev_auc := 0.5
-	for i := 0; i < 1000; i++ {
-		add := rand.NormFloat64() * rand.Float64()
+	for i := 0; i < 5000; i++ {
+		add := rand.Float64()
 		fid := features[rand.Intn(len(features))]
 		fweight := algo.Model[fid]
-		algo.Model[fid] += add
-		if algo.Model[fid] < 0.0 {
-			algo.Model[fid] = 0.0
-		}
+		algo.Model[fid] = add
 		auc := algo.TrainAUC(samples)
 		
-		if i % 100 == 0{
+		if i % 500 == 0{
 			fmt.Println(prev_auc)
 		}
 		

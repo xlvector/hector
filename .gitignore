@@ -1,3 +1,6 @@
+hector-cv
+hector-run
+hector-feature-combination
 data/
 *.train
 *.test

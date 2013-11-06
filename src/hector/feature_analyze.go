@@ -7,7 +7,7 @@ import(
 
 type WeightLabel struct {
 	weight float64
-	label int
+	label float64
 }
 
 type FeatureLabelDistribution struct {
@@ -20,7 +20,7 @@ func NewFeatureLabelDistribution() *FeatureLabelDistribution{
 	return &ret
 }
 
-func (f *FeatureLabelDistribution) AddWeightLabel(weight float64, label int){
+func (f *FeatureLabelDistribution) AddWeightLabel(weight float64, label float64){
 	wl := WeightLabel{weight:weight, label:label}
 	f.weight_label = append(f.weight_label, wl)
 }
@@ -40,9 +40,41 @@ func (f *FeatureLabelDistribution) Less(i, j int) bool {
 func (f *FeatureLabelDistribution) PositiveCount() int {
 	ret := 0
 	for _, e := range f.weight_label{
-		ret += e.label
+		ret += int(e.label)
 	}
 	return ret
+}
+
+func (f *FeatureLabelDistribution) Variance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) float64 {
+	mean_left := sum_left / count_left
+	mean_right := sum_right / count_right
+
+	return sum_left2 + sum_right2 - mean_left * mean_left * count_left - mean_right * mean_right * count_right
+}
+
+func (f *FeatureLabelDistribution) BestSplitByVariance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) (float64, float64) {
+
+	min_vari := 100000.0
+	split := f.weight_label[0].weight - 1.0
+	prev_weight := f.weight_label[0].weight - 1.0
+	for _, wl := range f.weight_label{
+		if prev_weight != wl.weight{
+			vari := f.Variance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right)
+			if vari < min_vari{
+				min_vari = vari
+				split = wl.weight
+			}	
+		}
+		prev_weight = wl.weight
+		sum_left += wl.label
+		sum_left2 += wl.label * wl.label
+		count_left += 1.0
+
+		sum_right -= wl.label
+		sum_right2 -= wl.label * wl.label
+		count_right -= 1.0
+	}
+	return split, min_vari
 }
 
 func Gini(pleft, tleft, pright, tright float64) float64 {
@@ -108,7 +140,7 @@ func (f *FeatureLabelDistribution) InformationValue(global_total, global_positiv
 			}	
 		}
 		prev_c = c
-		pos += e.label
+		pos += int(e.label)
 		total += 1
 	}
 	if total > 0{
@@ -145,7 +177,7 @@ func InformationValue(dataset *DataSet) map[int64]float64 {
 			if !ok {
 				feature_weight_labels[feature.Id] = NewFeatureLabelDistribution()
 			}
-			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, int(sample.Label))
+			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, sample.Label)
 		}
 	}
 	

@@ -19,12 +19,16 @@ func GetClassifier(method string) Classifier {
 		classifier = &(RandomDecisionTree{})
 	} else if method == "cart" {
 		classifier = &(CART{})	
+	} else if method == "cart-regression" {
+		classifier = &(RegressionTree{})	
 	} else if method == "rf" {
 		classifier = &(RandomForest{})	
 	} else if method == "fm" {
 		classifier = &(FactorizeMachine{})	
 	} else if method == "sa" {
 		classifier = &(SAOptAUC{})	
+	} else if method == "gbdt" {
+		classifier = &(GBDT{})	
 	} else {
 		classifier = &(LogisticRegression{})
 	}
