@@ -44,7 +44,8 @@ func SplitFile(input string, total int, part int) (string, string, error) {
 
 func main(){
 	train_path, _, _, method, params := hector.PrepareParams()
-	total := 7
+	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
+	total := int(cv)
 	
 	average_auc := 0.0
 	for part := 0; part < total; part++ {
