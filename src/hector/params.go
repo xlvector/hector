@@ -29,6 +29,10 @@ func GetClassifier(method string) Classifier {
 		classifier = &(SAOptAUC{})	
 	} else if method == "gbdt" {
 		classifier = &(GBDT{})	
+	} else if method == "svm" {
+		classifier = &(SVM{})	
+	} else if method == "l1vm" {
+		classifier = &(L1VM{})	
 	} else {
 		classifier = &(LogisticRegression{})
 	}
@@ -45,6 +49,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	regularization := flag.String("regularization", "0.01", "regularization")
 	alpha := flag.String("alpha", "0.1", "alpha of ftrl")
 	beta := flag.String("beta", "1", "beta of ftrl")
+	c := flag.String("c", "1", "C in svm")
+	e := flag.String("e", "0.01", "stop threshold")
 	lambda1 := flag.String("lambda1", "0.1", "lambda1 of ftrl")
 	lambda2 := flag.String("lambda2", "0.1", "lambda2 of ftrl")
 	tree_count := flag.String("tree-count", "10", "tree count in rdt/rf")
@@ -76,6 +82,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["gini"] = *gini
 	params["factors"] = *factors
 	params["output"] = *output
+	params["c"] = *c
+	params["e"] = *e
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	
 }

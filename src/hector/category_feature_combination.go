@@ -46,19 +46,13 @@ func (c *CategoryFeatureCombination) FindCombination(dataset *RawDataSet) []Comb
 	c.feature_combinations = []CombinedFeature{}
 
 	for i, fi := range features {
-		if rand.Intn(2) == 0{
-			c.feature_combinations = append(c.feature_combinations, CombinedFeature{fi})
-		} else {
-			candidate_column_combines = append(candidate_column_combines, CombinedFeature{fi})
-		}
+		c.feature_combinations = append(c.feature_combinations, CombinedFeature{fi})
 		for j, fj := range features[i+1:] {
 			candidate_column_combines = append(candidate_column_combines, CombinedFeature{fi, fj})
 			for k, fk := range features[i+j+1:]{
 				candidate_column_combines = append(candidate_column_combines, CombinedFeature{fi, fj, fk})
 				for _, ft := range features[i+j+k+1:]{
-					if rand.Intn(10) == 0 {
-						candidate_column_combines = append(candidate_column_combines, CombinedFeature{fi, fj, fk, ft})
-					}
+					candidate_column_combines = append(candidate_column_combines, CombinedFeature{fi, fj, fk, ft})
 				}
 			}
 		}
