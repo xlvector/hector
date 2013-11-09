@@ -62,6 +62,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	steps := flag.Int("steps", 1, "steps before convergent")
 	global := flag.Int64("global", -1, "feature id of global bias")
 	method := flag.String("method", "lr", "algorithm name")
+	cv := flag.Int("cv", 7, "cross validation folder count")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -84,6 +85,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["output"] = *output
 	params["c"] = *c
 	params["e"] = *e
+	params["cv"] = strconv.FormatInt(int64(*cv), 10)
+	
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	
 }
