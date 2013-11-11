@@ -35,3 +35,11 @@ func (m *Matrix) GetRow(k1 int64) *Vector {
 	}
 	return row
 }
+
+func (m *Matrix) MultiplyVector(v *Vector) *Vector {
+	ret := NewVector()
+	for id, vi := range m.data {
+		ret.SetValue(id, v.Dot(vi))
+	}
+	return ret
+}
