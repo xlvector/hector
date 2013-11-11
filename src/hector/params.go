@@ -29,7 +29,9 @@ func GetClassifier(method string) Classifier {
 		classifier = &(SAOptAUC{})	
 	} else if method == "gbdt" {
 		classifier = &(GBDT{})	
-	} else {
+	} else if method == "neural_network" {
+		classifier = &(NeuralNetwork{})
+	}else {
 		classifier = &(LogisticRegression{})
 	}
 	return classifier
@@ -56,6 +58,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	steps := flag.Int("steps", 1, "steps before convergent")
 	global := flag.Int64("global", -1, "feature id of global bias")
 	method := flag.String("method", "lr", "algorithm name")
+	hidden := flag.Int64("hidden", 1, "hidden neuron number")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -76,6 +79,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["gini"] = *gini
 	params["factors"] = *factors
 	params["output"] = *output
+	params["hidden"] = strconv.FormatInt(int64(*hidden), 10)
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	
 }
