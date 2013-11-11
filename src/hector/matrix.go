@@ -36,10 +36,36 @@ func (m *Matrix) GetRow(k1 int64) *Vector {
 	return row
 }
 
+func (m *Matrix) Scale(scale float64) *Matrix {
+	ret := NewMatrix()
+	for id, vi := range m.data {
+		ret.data[id] = vi.Scale(scale)
+	}
+	return ret
+}
+
 func (m *Matrix) MultiplyVector(v *Vector) *Vector {
+	// This is intended for l-by-m * m-by-1
+	// For m-by-1 * 1-by-n, use OuterProduct in vector.go
+	// Probably should just have a MatrixMultiply for everything
 	ret := NewVector()
 	for id, vi := range m.data {
 		ret.SetValue(id, v.Dot(vi))
+	}
+	return ret
+}
+
+func (m *Matrix) ElemWiseAddMatrix(n *Matrix) *Matrix {
+	ret := NewMatrix()
+	for key, mi := range m.data{
+		ret.data[key] = mi
+	}
+	for key, ni := range n.data{
+		if ret.GetRow(key) == nil{
+			ret.data[key] = ni
+		} else {
+			ret.data[key] = ni.ElemWiseAddVector(ret.GetRow(key))
+		}
 	}
 	return ret
 }
