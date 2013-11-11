@@ -73,3 +73,13 @@ func (v *Vector) DotFeatures(fs []Feature) float64{
 	}
 	return ret
 }
+
+type ElemOperation func(float64)(float64)
+
+func (v *Vector) ApplyFunc(fn ElemOperation) *Vector{
+	ret := NewVector()
+	for key, val := range v.data{
+		ret.SetValue(key, fn(val))
+	}
+	return ret
+}
