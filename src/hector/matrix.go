@@ -55,6 +55,16 @@ func (m *Matrix) MultiplyVector(v *Vector) *Vector {
 	return ret
 }
 
+func (m *Matrix) Trans() *Matrix {
+	ret := NewMatrix()
+	for rid, vi := range m.data {
+		for cid, w := range vi.data {
+			ret.SetValue(cid, rid, w)
+		}
+	}
+	return ret
+}
+
 func (m *Matrix) ElemWiseAddMatrix(n *Matrix) *Matrix {
 	ret := NewMatrix()
 	for key, mi := range m.data{

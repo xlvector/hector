@@ -67,9 +67,16 @@ func (v *Vector) Copy() *Vector{
 }
 
 func (v *Vector) Dot(v2 *Vector) float64{
+	va := v
+	vb := v2
+
+	if len(v2.data) < len(v.data) {
+		va = v2
+		vb = v
+	}
 	ret := 0.0
-	for key, value := range v.data{
-		ret += value * v2.GetValue(key)
+	for key, value := range va.data{
+		ret += value * vb.GetValue(key)
 	}
 	return ret	
 }

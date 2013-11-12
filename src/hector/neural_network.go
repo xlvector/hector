@@ -3,6 +3,7 @@ package hector
 import(
     "strconv"
     "math/rand"
+    "math"
 )
 
 type NeuralNetworkParams struct {
@@ -21,11 +22,11 @@ type NeuralNetwork struct {
     Params NeuralNetworkParams
 }
 
-func random_init_vector(dim int64) *Vector{
+func RandomInitVector(dim int64) *Vector{
     v := NewVector()
     var i int64
     for i = 0; i < dim; i++ {
-        v.data[i] = rand.NormFloat64()
+        v.data[i] = (rand.Float64() - 0.5) / math.Sqrt(float64(dim))
     }
     return v
 }
@@ -50,10 +51,11 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
         for _, f := range sample.Features{
             _, ok := algo.Model.L1.data[f.Id]
             if !ok{
-                algo.Model.L1.data[f.Id] = random_init_vector(algo.Params.Hidden)
+                algo.Model.L1.data[f.Id] = RandomInitVector(algo.Params.Hidden)
             }
         }
     }
+    algo.Model.L1 = algo.Model.L1.Trans()
 
     algo.Model.L2 = NewVector()
     var i int64
@@ -71,7 +73,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
             dL2 := y.Scale(err)
             sig := algo.Model.L2.Scale(err)
             sig = sig.ElemWiseMultiply(y.ApplyOnElem(_fn))
-            dL1 := x.OuterProduct(sig)
+            dL1 := sig.OuterProduct(x)
 
             algo.Model.L2 = algo.Model.L2.ElemWiseAddVector(dL2.Scale(algo.Params.LearningRate))
             algo.Model.L1 = algo.Model.L1.ElemWiseAddMatrix(dL1.Scale(algo.Params.LearningRate))
