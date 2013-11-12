@@ -2,62 +2,43 @@ package main
 
 import(
 	"hector"
-	"os"
 	"strconv"
 	"fmt"
-	"bufio"
 )
 
-func SplitFile(input string, total int, part int) (string, string, error) {
-	file, err := os.Open(input)
-	if err != nil {
-		return "", "", err
-	}
-	defer file.Close()
-	
-	train_path := input + ".train." + strconv.Itoa(part)
-	train_file, err := os.Create(train_path)
-	if err != nil{
-		return "", "", err
-	}
-	defer train_file.Close()
-	
-	test_path := input + ".test." + strconv.Itoa(part)
-	test_file, err := os.Create(test_path)
-	if err != nil{
-		return "", "", err
-	}
-	defer test_file.Close()
-	
-	scanner := bufio.NewScanner(file)
-	k := 0
-	for scanner.Scan() {
-		if k % total == part{
-			test_file.WriteString(scanner.Text() + "\n")
+func SplitFile(dataset *hector.DataSet, total, part int) (*hector.DataSet, *hector.DataSet) {
+
+	train := hector.NewDataSet()
+	test := hector.NewDataSet()
+
+	for i, sample := range dataset.Samples {
+		if i % total == part {
+			test.AddSample(sample)
 		} else {
-			train_file.WriteString(scanner.Text() + "\n")
+			train.AddSample(sample)
 		}
-		k += 1
 	}
-	return train_path, test_path, nil
+	return train, test
 }
 
 func main(){
 	train_path, _, _, method, params := hector.PrepareParams()
+	global, _ := strconv.ParseInt(params["global"], 10, 64)
+	dataset := hector.NewDataSet()
+	dataset.Load(train_path, global)
+
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
 	total := int(cv)
 	
 	average_auc := 0.0
 	for part := 0; part < total; part++ {
-		train, test, _ := SplitFile(train_path, total, part)
+		train, test := SplitFile(dataset, total, part)
 		classifier := hector.GetClassifier(method)
 		
-		auc, _, _ := hector.AlgorithmRun(classifier, train, test, "", params)
+		auc, _ := hector.AlgorithmRunOnDataSet(classifier, train, test, "", params)
 		fmt.Println("AUC:")
 		fmt.Println(auc)
 		average_auc += auc
-		os.Remove(train)
-		os.Remove(test)
 		classifier = nil
 	}
 	fmt.Println(average_auc / float64(total))

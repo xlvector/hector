@@ -58,6 +58,14 @@ func (v *Vector) NormL2() float64{
 	return ret
 }
 
+func (v *Vector) Copy() *Vector{
+	ret := NewVector()
+	for key, val := range v.data {
+		ret.SetValue(key, val)
+	}
+	return ret
+}
+
 func (v *Vector) Dot(v2 *Vector) float64{
 	ret := 0.0
 	for key, value := range v.data{

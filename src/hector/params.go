@@ -4,9 +4,12 @@ import(
 	"flag"
 	"fmt"
 	"strconv"
+	"math/rand"
+	"time"
 )
 
 func GetClassifier(method string) Classifier {
+	rand.Seed( time.Now().UTC().UnixNano())
 	var classifier Classifier
 		
 	if method == "lr"{
@@ -33,6 +36,8 @@ func GetClassifier(method string) Classifier {
 		classifier = &(SVM{})	
 	} else if method == "l1vm" {
 		classifier = &(L1VM{})	
+	} else if method == "knn" {
+		classifier = &(KNN{})	
 	} else {
 		classifier = &(LogisticRegression{})
 	}
@@ -63,6 +68,9 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	global := flag.Int64("global", -1, "feature id of global bias")
 	method := flag.String("method", "lr", "algorithm name")
 	cv := flag.Int("cv", 7, "cross validation folder count")
+	k := flag.String("k", "3", "neighborhood size of knn")
+	radius := flag.String("radius", "1.0", "radius of RBF kernel")
+	sv := flag.String("sv", "8", "support vector count for l1vm")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -85,7 +93,10 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["output"] = *output
 	params["c"] = *c
 	params["e"] = *e
+	params["k"] = *k
 	params["cv"] = strconv.FormatInt(int64(*cv), 10)
+	params["radius"] = *radius
+	params["sv"] = *sv
 	
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	

@@ -6,7 +6,6 @@ import (
 )
 
 func AlgorithmRun(classifier Classifier, train_path string, test_path string, pred_path string, params map[string]string) (float64, []*LabelPrediction, error) {
-	classifier.Init(params)
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	train_dataset := NewDataSet()
 
@@ -16,13 +15,21 @@ func AlgorithmRun(classifier Classifier, train_path string, test_path string, pr
 		return 0.5, nil, err
 	}
 	
-	classifier.Train(train_dataset)
-	
 	test_dataset := NewDataSet()
 	err = test_dataset.Load(test_path, global)
 	if err != nil{
 		return 0.5, nil, err
 	}
+	
+	auc, predictions := AlgorithmRunOnDataSet(classifier, train_dataset, test_dataset, pred_path, params)
+
+	return auc, predictions, nil
+}
+
+func AlgorithmRunOnDataSet(classifier Classifier, train_dataset, test_dataset *DataSet, pred_path string, params map[string]string) (float64, []*LabelPrediction) {
+	classifier.Init(params)
+	
+	classifier.Train(train_dataset)
 	
 	predictions := []*LabelPrediction{}
 	var pred_file *os.File
@@ -41,5 +48,5 @@ func AlgorithmRun(classifier Classifier, train_path string, test_path string, pr
 	}
 		
 	auc := AUC(predictions)
-	return auc, predictions, nil
+	return auc, predictions
 }

@@ -52,3 +52,4 @@ func (c *GBDT) Predict(sample *Sample) float64 {
 	}
 	return ret
 }
+
