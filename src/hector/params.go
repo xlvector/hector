@@ -31,20 +31,16 @@ func GetClassifier(method string) Classifier {
 	} else if method == "sa" {
 		classifier = &(SAOptAUC{})	
 	} else if method == "gbdt" {
-		classifier = &(GBDT{})	
-<<<<<<< HEAD
+		classifier = &(GBDT{})
 	} else if method == "svm" {
 		classifier = &(SVM{})	
 	} else if method == "l1vm" {
 		classifier = &(L1VM{})	
 	} else if method == "knn" {
 		classifier = &(KNN{})	
-	} else {
-=======
-	} else if method == "neural_network" {
+	} else if method == "ann" {
 		classifier = &(NeuralNetwork{})
 	}else {
->>>>>>> fengqi0423/neural_network
 		classifier = &(LogisticRegression{})
 	}
 	return classifier
