@@ -32,6 +32,7 @@ func GetClassifier(method string) Classifier {
 		classifier = &(SAOptAUC{})	
 	} else if method == "gbdt" {
 		classifier = &(GBDT{})	
+<<<<<<< HEAD
 	} else if method == "svm" {
 		classifier = &(SVM{})	
 	} else if method == "l1vm" {
@@ -39,6 +40,11 @@ func GetClassifier(method string) Classifier {
 	} else if method == "knn" {
 		classifier = &(KNN{})	
 	} else {
+=======
+	} else if method == "neural_network" {
+		classifier = &(NeuralNetwork{})
+	}else {
+>>>>>>> fengqi0423/neural_network
 		classifier = &(LogisticRegression{})
 	}
 	return classifier
@@ -71,6 +77,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	k := flag.String("k", "3", "neighborhood size of knn")
 	radius := flag.String("radius", "1.0", "radius of RBF kernel")
 	sv := flag.String("sv", "8", "support vector count for l1vm")
+	hidden := flag.Int64("hidden", 1, "hidden neuron number")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -97,7 +104,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["cv"] = strconv.FormatInt(int64(*cv), 10)
 	params["radius"] = *radius
 	params["sv"] = *sv
-	
+	params["hidden"] = strconv.FormatInt(int64(*hidden), 10)
+
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	
 }

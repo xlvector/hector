@@ -81,3 +81,51 @@ func (v *Vector) DotFeatures(fs []Feature) float64{
 	}
 	return ret
 }
+
+type ElemOperation func(float64)(float64)
+
+func (v *Vector) ApplyOnElem(fn ElemOperation) *Vector{
+	ret := NewVector()
+	for key, val := range v.data{
+		ret.SetValue(key, fn(val))
+	}
+	return ret
+}
+
+func (v *Vector) Scale(scale float64) *Vector{
+	ret := NewVector()
+	for key, val := range v.data{
+		ret.SetValue(key, val * scale)
+	}
+	return ret
+}
+
+func (v *Vector) ElemWiseAddVector(u *Vector) *Vector{
+	ret := NewVector()
+	for key, vi := range v.data{
+		ret.SetValue(key, vi)
+	}
+	for key, ui := range u.data{
+		ret.AddValue(key, ui)
+	}
+	return ret
+}
+
+func (v *Vector) ElemWiseMultiply(u *Vector) *Vector{
+	ret := NewVector()
+	for key, val := range v.data{
+		ual := u.GetValue(key)
+		if ual != 0 && val !=0{
+			ret.SetValue(key, val*ual)
+		}
+	}
+	return ret
+}
+
+func (v *Vector) OuterProduct(u *Vector) *Matrix{
+	ret := NewMatrix()
+	for key, vi := range v.data{
+		ret.data[key] = u.Scale(vi)
+	}
+	return ret
+}
