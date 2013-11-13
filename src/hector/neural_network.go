@@ -39,44 +39,62 @@ func (algo *NeuralNetwork) Init(params map[string]string) {
     algo.Params.Hidden = int64(hidden)
 }
 
-func _fn(yi float64)float64{
-    return (1-yi)*yi
-}
-
 func (algo *NeuralNetwork) Train(dataset * DataSet) {
     algo.Model = TwoLayerWeights{}
-    
+
     algo.Model.L1 = NewMatrix()
+    for i := int64(0); i < algo.Params.Hidden; i++ {
+        algo.Model.L1.data[i] = NewVector()
+    }
+    
+    initalized := make(map[int64]int)
     for _, sample := range dataset.Samples {
         for _, f := range sample.Features{
-            _, ok := algo.Model.L1.data[f.Id]
+            _, ok := initalized[f.Id]
             if !ok{
-                algo.Model.L1.data[f.Id] = RandomInitVector(algo.Params.Hidden)
+                for i := int64(0); i < algo.Params.Hidden; i++ {
+                    algo.Model.L1.SetValue(i, f.Id, rand.NormFloat64())               
+                }
+                initalized[f.Id] = 1
             }
         }
     }
-    algo.Model.L1 = algo.Model.L1.Trans()
-
+    
     algo.Model.L2 = NewVector()
-    var i int64
-    for i = 0; i < algo.Params.Hidden; i++ {
+    for i := int64(0); i < algo.Params.Hidden; i++ {
         algo.Model.L2.data[i] = rand.NormFloat64()
     }
 
     for step := 0; step < algo.Params.Steps; step++{
         for _, sample := range dataset.Samples {
-            x := sample.GetFeatureVector()
-            y := (algo.Model.L1.MultiplyVector(x)).ApplyOnElem(Sigmoid)
-            z := Sigmoid(y.Dot(algo.Model.L2))
+            y := NewVector()
+            z := float64(0)
+            for i := int64(0); i < algo.Params.Hidden; i++ {
+                sum := float64(0)
+                for _, f := range sample.Features {
+                    sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
+                }
+                y.data[i] = Sigmoid(sum)
+                z += (y.data[i] * algo.Model.L2.data[i])
+            }
+            z = Sigmoid(z)
 
             err := sample.LabelDoubleValue() - z
-            dL2 := y.Scale(err)
-            sig := algo.Model.L2.Scale(err)
-            sig = sig.ElemWiseMultiply(y.ApplyOnElem(_fn))
-            dL1 := sig.OuterProduct(x)
-
-            algo.Model.L2 = algo.Model.L2.ElemWiseAddVector(dL2.Scale(algo.Params.LearningRate))
-            algo.Model.L1 = algo.Model.L1.ElemWiseAddMatrix(dL1.Scale(algo.Params.LearningRate))
+            sig := NewVector()
+            for key, val := range y.data {
+                sig.SetValue(key, err * algo.Model.L2.GetValue(key) * (1-val) * val)
+            }
+            for key, val := range algo.Model.L2.data {
+                algo.Model.L2.SetValue(key, val + algo.Params.LearningRate * y.GetValue(key) * err)
+            }
+            for i, s := range sig.data {
+                if s != 0 {
+                    for _, f := range sample.Features {
+                        val := algo.Model.L1.data[i].GetValue(f.Id)
+                        algo.Model.L1.SetValue(i, f.Id, val + algo.Params.LearningRate * s * f.Value)
+                    }
+                }
+            }
         }
     }
 }
