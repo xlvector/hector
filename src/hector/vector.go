@@ -75,8 +75,11 @@ func (v *Vector) Dot(v2 *Vector) float64{
 		vb = v
 	}
 	ret := 0.0
-	for key, value := range va.data{
-		ret += value * vb.GetValue(key)
+	for key, a := range va.data{
+		b, ok := vb.data[key]
+		if ok {
+			ret += a*b
+		}
 	}
 	return ret	
 }
