@@ -34,6 +34,8 @@ func GetClassifier(method string) Classifier {
 		classifier = &(GBDT{})
 	} else if method == "svm" {
 		classifier = &(SVM{})	
+	} else if method == "linear_svm" {
+		classifier = &(LinearSVM{})	
 	} else if method == "l1vm" {
 		classifier = &(L1VM{})	
 	} else if method == "knn" {
