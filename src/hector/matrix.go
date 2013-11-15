@@ -26,6 +26,15 @@ func (m *Matrix) SetValue(k1, k2 int64, v float64){
 	m.data[k1].SetValue(k2, v)
 }
 
+func (m *Matrix) GetValue(k1, k2 int64) float64 {
+	row := m.GetRow(k1)
+	if row == nil {
+		return 0.0
+	} else {
+		return row.GetValue(k2)
+	}
+}
+
 func (m *Matrix) GetRow(k1 int64) *Vector {
 	row, ok := m.data[k1]
 	if !ok {

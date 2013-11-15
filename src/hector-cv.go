@@ -4,6 +4,9 @@ import(
 	"hector"
 	"strconv"
 	"fmt"
+	"runtime/pprof"
+	"os"
+	"log"
 )
 
 func SplitFile(dataset *hector.DataSet, total, part int) (*hector.DataSet, *hector.DataSet) {
@@ -24,11 +27,21 @@ func SplitFile(dataset *hector.DataSet, total, part int) (*hector.DataSet, *hect
 func main(){
 	train_path, _, _, method, params := hector.PrepareParams()
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
+	profile, _ := params["profile"]
 	dataset := hector.NewDataSet()
 	dataset.Load(train_path, global)
 
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
 	total := int(cv)
+
+	if profile != "" {
+        f, err := os.Create(profile)
+        if err != nil {
+            log.Fatal(err)
+        }
+        pprof.StartCPUProfile(f)
+        defer pprof.StopCPUProfile()
+    }
 	
 	average_auc := 0.0
 	for part := 0; part < total; part++ {

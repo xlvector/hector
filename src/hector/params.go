@@ -74,6 +74,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	radius := flag.String("radius", "1.0", "radius of RBF kernel")
 	sv := flag.String("sv", "8", "support vector count for l1vm")
 	hidden := flag.Int64("hidden", 1, "hidden neuron number")
+	profile := flag.String("profile", "", "profile file name")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -101,6 +102,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["radius"] = *radius
 	params["sv"] = *sv
 	params["hidden"] = strconv.FormatInt(int64(*hidden), 10)
+	params["profile"] = *profile
 
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	
