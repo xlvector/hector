@@ -53,7 +53,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
             _, ok := initalized[f.Id]
             if !ok{
                 for i := int64(0); i < algo.Params.Hidden; i++ {
-                    algo.Model.L1.SetValue(i, f.Id, rand.NormFloat64())               
+                    algo.Model.L1.SetValue(i, f.Id, (rand.Float64() - 0.5) / math.Sqrt(float64(algo.Params.Hidden)))               
                 }
                 initalized[f.Id] = 1
             }
