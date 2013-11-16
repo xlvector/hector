@@ -1,3 +1,11 @@
+/*
+Package hector is a golang based machine learning lib. It intend to implement all famous machine learning algoirhtms by golang.
+Currently, it only support algorithms which can solve binary classification problems. Supported algorithms include:
+1. Decision Tree (CART, Random Forest, GBDT)
+2. Logistic Regression
+3. SVM
+4. Neural Network
+*/
 package hector
 
 import (

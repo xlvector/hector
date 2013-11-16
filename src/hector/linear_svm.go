@@ -7,8 +7,10 @@ import (
 	"fmt"
 )
 
-//This algorithm implement L1 Linear SVM described in "A Dual Coordinate Descent Method for Large-scale Linear SVM"
-//You can download the paper from http://ntu.csie.org/~cjlin/papers/cddual.pdf
+/*
+This algorithm implement L1 Linear SVM described in "A Dual Coordinate Descent Method for Large-scale Linear SVM"
+You can download the paper from http://ntu.csie.org/~cjlin/papers/cddual.pdf
+*/
 type LinearSVM struct {
 	sv []*Vector
 	y []float64
