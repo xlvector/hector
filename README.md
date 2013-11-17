@@ -21,13 +21,21 @@ Hector support libsvm-like data format. Following is an sample dataset
 
 # How to Run
 
-cd src
+## Run as tools
 
-go build hector-cv.go
+In src folder, you will find two program with main function : hector-cv.go and hector-run.go
 
-./hector-cv --method [Method] --train [Data Path]
+hector-cv.go will help you test one algorithm by cross validation in some dataset, you can run it by following steps:
 
-Here, Method include [lr, ftrl, dt, rf, fm, rdt]
+	cd src
+	go build hector-cv.go
+	./hector-cv --method [Method] --train [Data Path]
+
+Here, Method include
+
+1. lr : Logistic Regression with SGD and L2 regularization.
+2. ftrl : FTRL-Proximal Logistic Regreesion with L1 regularization. Please review this paper for more details "Ad Click Prediction: a View from the Trenches".
+3. ep : Bayesian Logistic Regression with expectation propagation. Please review this paper for more details "Web-Scale Bayesian Click-Through Rate Prediction for Sponsored Search Advertising in Microsoft’s Bing Search Engine"
 
 Data Path is location of your dataset, we support LibSVM data format
 
