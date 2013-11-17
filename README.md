@@ -29,16 +29,35 @@ hector-cv.go will help you test one algorithm by cross validation in some datase
 
 	cd src
 	go build hector-cv.go
-	./hector-cv --method [Method] --train [Data Path]
+	./hector-cv --method [Method] --train [Data Path] --cv 10
 
 Here, Method include
 
-1. lr : Logistic Regression with SGD and L2 regularization.
-2. ftrl : FTRL-Proximal Logistic Regreesion with L1 regularization. Please review this paper for more details "Ad Click Prediction: a View from the Trenches".
-3. ep : Bayesian Logistic Regression with expectation propagation. Please review this paper for more details "Web-Scale Bayesian Click-Through Rate Prediction for Sponsored Search Advertising in Microsoft’s Bing Search Engine"
+1. lr : logistic regression with SGD and L2 regularization.
+2. ftrl : FTRL-proximal logistic regreesion with L1 regularization. Please review this paper for more details "Ad Click Prediction: a View from the Trenches".
+3. ep : bayesian logistic regression with expectation propagation. Please review this paper for more details "Web-Scale Bayesian Click-Through Rate Prediction for Sponsored Search Advertising in Microsoft’s Bing Search Engine"
+4. fm : factorization machine
+5. cart : classifiaction tree
+6. cart-regression : regression tree
+7. rf : random forest
+8. rdt : random decision trees
+9. gbdt : gradient boosting decisio tree
+10. linear-svm : linear svm with L1 regularization
+11. svm : svm optimizaed by SMO (current, its linear svm)
+12. l1vm : vector machine with L1 regularization by RBF kernel
+13. knn : k-nearest neighbor classification
 
-Data Path is location of your dataset, we support LibSVM data format
+hector-run.go will help you train one algorithm on train dataset and test it on test dataset, you can run it by following steps:
 
-For example, you can run 10-fold cross validation by random forest on test data by:
+	cd src
+	go build hector-run.go
+	./hector-run --method [Method] --train [Data Path] --test [Data Path]
 
-./hector-cv --train ../data/titanic --method rf --cv 10
+Above methods will direct train algorithm on train dataset and then test on test dataset. If you want to train algorithm and get the model file, you can run it by following steps:
+
+	./hector-run --method [Method] --action train --train [Data Path] --model [Model Path]
+
+Then, you can use model file to test any test dataset:
+
+	./hector-run --method [Method] --action test --test [Data Path] --model [Model Path]
+
