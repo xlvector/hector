@@ -2,11 +2,39 @@ package hector
 
 import(
 	"strconv"
+	"os"
+	"bufio"
+	"strings"
 )
 
 type LinearRegression struct {
 	Model map[int64]float64
 	Params LogisticRegressionParams
+}
+
+func (algo *LinearRegression) SaveModel(path string) {
+	sb := StringBuilder{}
+	for f, g := range algo.Model {
+		sb.Int64(f)
+		sb.Write("\t")
+		sb.Float(g)
+		sb.Write("\n")
+	}
+	sb.WriteToFile(path)
+}
+
+func (algo *LinearRegression) LoadModel(path string) {
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	scaner := bufio.NewScanner(file)
+	for scaner.Scan() {
+		line := scaner.Text()
+		tks := strings.Split(line, "\t")
+		fid, _ := strconv.ParseInt(tks[0], 10, 64)
+		fw, _ := strconv.ParseFloat(tks[1], 64)
+		algo.Model[fid] = fw
+	}
 }
 
 func (algo *LinearRegression) Init(params map[string]string) {

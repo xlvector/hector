@@ -28,7 +28,7 @@ func TestClassifiers(t *testing.T){
 
 	for _, algo := range algos {
 		classifier := GetClassifier(algo)
-		
+		classifier.Init(params)
 		auc, _ := AlgorithmRunOnDataSet(classifier, train_dataset, test_dataset, "", params)
 
 		t.Logf("auc of %s in linear dataset is %f", algo, auc)
@@ -56,7 +56,7 @@ func TestClassifiersOnXOR(t *testing.T) {
 
 	for _, algo := range algos {
 		classifier := GetClassifier(algo)
-		
+		classifier.Init(params)
 		auc, _ := AlgorithmRunOnDataSet(classifier, train_dataset, test_dataset, "", params)
 
 		t.Logf("auc of %s in xor dataset is %f", algo, auc)

@@ -3,6 +3,9 @@ package hector
 import (
 	"math"
 	"strconv"
+	"os"
+	"bufio"
+	"strings"
 )
 
 type FTRLLogisticRegressionParams struct {
@@ -13,6 +16,7 @@ type FTRLLogisticRegressionParams struct {
 type FTRLFeatureWeight struct {
 	ni, zi float64
 }
+
 
 func (w *FTRLFeatureWeight) Wi(p FTRLLogisticRegressionParams) float64 {
 	wi := 0.0
@@ -25,6 +29,35 @@ func (w *FTRLFeatureWeight) Wi(p FTRLLogisticRegressionParams) float64 {
 type FTRLLogisticRegression struct {
 	Model map[int64]FTRLFeatureWeight
 	Params FTRLLogisticRegressionParams
+}
+
+func (algo *FTRLLogisticRegression) SaveModel(path string) {
+	sb := StringBuilder{}
+	for f, g := range algo.Model {
+		sb.Int64(f)
+		sb.Write("\t")
+		sb.Float(g.ni)
+		sb.Write("\t")
+		sb.Float(g.zi)
+		sb.Write("\n")
+	}
+	sb.WriteToFile(path)
+}
+
+func (algo *FTRLLogisticRegression) LoadModel(path string) {
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	scaner := bufio.NewScanner(file)
+	for scaner.Scan() {
+		line := scaner.Text()
+		tks := strings.Split(line, "\t")
+		fid, _ := strconv.ParseInt(tks[0], 10, 64)
+		ni, _ := strconv.ParseFloat(tks[1], 64)
+		zi, _ := strconv.ParseFloat(tks[2], 64)
+		g := FTRLFeatureWeight{ni: ni, zi: zi}
+		algo.Model[fid] = g
+	}
 }
 
 func (algo *FTRLLogisticRegression) Predict(sample * Sample) float64 {

@@ -10,4 +10,7 @@ type Classifier interface {
 
 	//Predict the probability of a sample to be positive sample
 	Predict(sample * Sample) float64
+
+	SaveModel(path string)
+	LoadModel(path string)
 }

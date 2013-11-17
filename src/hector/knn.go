@@ -10,6 +10,15 @@ type KNN struct {
 	k int
 }
 
+
+func (self *KNN) SaveModel(path string){
+
+}
+
+func (self *KNN) LoadModel(path string){
+	
+}
+
 func (c *KNN) Init(params map[string]string){
 	K, _ := strconv.ParseInt(params["k"], 10, 64)
 	c.k = int(K)

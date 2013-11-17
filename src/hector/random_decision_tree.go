@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 	"strconv"
+	"strings"
 )
 
 type TreeNode struct {
@@ -39,6 +40,54 @@ func (t *Tree) GetNode(i int) *TreeNode {
 	return t.nodes[i]
 }
 
+func (t *Tree) ToString() []byte {
+	sb := StringBuilder{}
+	sb.Int(len(t.nodes))
+	sb.Write("\n")
+	for i, node := range t.nodes {
+		sb.Int(i)
+		sb.Write("\t")
+		sb.Int(node.left)
+		sb.Write("\t")
+		sb.Int(node.right)
+		sb.Write("\t")
+		sb.Int(node.depth)
+		sb.Write("\t")
+		sb.Float(node.prediction)
+		sb.Write("\t")
+		sb.Int(node.sample_count)
+		sb.Write("\t")
+		sb.Int64(node.feature_split.Id)
+		sb.Write("\t")
+		sb.Float(node.feature_split.Value)
+		sb.Write("\n")
+	}
+	return sb.Bytes()
+}
+
+func (t *Tree) FromString(buf string) {
+	lines := strings.Split(buf, "\n")
+	size, _ := strconv.Atoi(lines[0])
+	t.nodes = make([]*TreeNode, size + 1, size + 1)
+	for _, line := range lines[1:] {
+		if len(line) == 0 {
+			break
+		}
+		tks := strings.Split(line, "\t")
+		node := TreeNode{}
+		i, _ := strconv.Atoi(tks[0])
+		node.left, _ = strconv.Atoi(tks[1])
+		node.right, _ = strconv.Atoi(tks[2])
+		node.depth, _ = strconv.Atoi(tks[3])
+		node.prediction, _ = strconv.ParseFloat(tks[4], 64)
+		node.sample_count, _ = strconv.Atoi(tks[5])
+		node.feature_split = Feature{}
+		node.feature_split.Id, _ = strconv.ParseInt(tks[6], 10, 64)
+		node.feature_split.Value, _ = strconv.ParseFloat(tks[7], 64)
+		t.nodes[i] = &node
+	}
+}
+
 type RDTParams struct {
 	TreeCount   int
 	MinLeafSize int
@@ -47,6 +96,14 @@ type RDTParams struct {
 type RandomDecisionTree struct {
 	trees []*Tree
 	params RDTParams
+}
+
+func (self *RandomDecisionTree) SaveModel(path string){
+
+}
+
+func (self *RandomDecisionTree) LoadModel(path string){
+	
 }
 
 func (rdt *RandomDecisionTree) GoLeft(sample *MapBasedSample, feature_split Feature) bool {

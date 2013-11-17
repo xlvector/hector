@@ -5,8 +5,15 @@ import (
 	"sort"
 	"container/list"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"bufio"
 )
 
+/*
+CART is classification and regression tree, this class implement classification tree and use gini
+to split features
+*/
 type CART struct {
 	tree Tree
 	params CARTParams
@@ -244,6 +251,21 @@ func (dt *CART) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
 	node,_ := dt.PredictBySingleTree(&dt.tree, msample)
 	return node.prediction
+}
+
+func (self *CART) SaveModel(path string){
+	ioutil.WriteFile(path, self.tree.ToString(), 0600)
+}
+
+func (self *CART) LoadModel(path string){
+	file, _ := os.Open(path)
+	defer file.Close()
+	text := ""
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		text += scanner.Text() + "\n"
+	}
+	self.tree.FromString(string(text))
 }
 
 

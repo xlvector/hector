@@ -26,6 +26,14 @@ type L1VM struct {
 	count int
 }
 
+func (self *L1VM) SaveModel(path string){
+
+}
+
+func (self *L1VM) LoadModel(path string){
+	
+}
+
 func (c *L1VM) Init(params map[string]string){
 	c.ftrl = &(FTRLLogisticRegression{})
 	c.ftrl.Init(params)

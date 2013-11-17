@@ -77,6 +77,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	sv := flag.String("sv", "8", "support vector count for l1vm")
 	hidden := flag.Int64("hidden", 1, "hidden neuron number")
 	profile := flag.String("profile", "", "profile file name")
+	model := flag.String("model", "", "model file name")
+	action := flag.String("action", "", "train or test, do both if action is empty string")
 	
 	flag.Parse()
 	fmt.Println(*train_path)
@@ -105,6 +107,8 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["sv"] = *sv
 	params["hidden"] = strconv.FormatInt(int64(*hidden), 10)
 	params["profile"] = *profile
+	params["action"] = *action
+	params["model"] = *model
 
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	

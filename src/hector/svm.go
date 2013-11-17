@@ -19,6 +19,14 @@ type SVM struct {
 	xx []float64
 }
 
+func (self *SVM) SaveModel(path string){
+
+}
+
+func (self *SVM) LoadModel(path string){
+	
+}
+
 type SVMValues struct {
 	a1, a2, e1, e2, k11, k12, k22 float64
 	i1, i2 int

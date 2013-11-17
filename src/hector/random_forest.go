@@ -3,6 +3,8 @@ package hector
 import (
 	"math/rand"
 	"strconv"
+	"os"
+	"bufio"
 )
 
 type RandomForestParams struct {
@@ -15,6 +17,36 @@ type RandomForest struct {
 	params RandomForestParams
 	cart CART
 	continuous_features bool
+}
+
+func (self *RandomForest) SaveModel(path string){
+	file, _ := os.Create(path)
+	defer file.Close()
+	for _, tree := range self.trees {
+		buf := tree.ToString()
+		file.Write(buf)
+		file.WriteString("\n#\n")
+	}
+}
+
+func (self *RandomForest) LoadModel(path string){
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	self.trees = []Tree{}
+	scanner := bufio.NewScanner(file)
+	text := ""
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "#" {
+			tree := Tree{}
+			tree.FromString(text)
+			self.trees = append(self.trees, tree)
+			text = ""
+		} else {
+			text += line + "\n"
+		}
+	}
 }
 
 func (dt *RandomForest) Init(params map[string]string){

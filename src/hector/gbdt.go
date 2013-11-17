@@ -12,6 +12,15 @@ type GBDT struct {
 	shrink float64
 }
 
+
+func (self *GBDT) SaveModel(path string){
+
+}
+
+func (self *GBDT) LoadModel(path string){
+	
+}
+
 func (c *GBDT) Init(params map[string]string) {
 	tree_count,_ := strconv.ParseInt(params["tree-count"], 10, 64)
 	c.tree_count = int(tree_count)

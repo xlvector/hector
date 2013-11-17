@@ -3,6 +3,9 @@ package hector
 import (
 	"math"
 	"strconv"
+	"os"
+	"bufio"
+	"strings"
 )
 
 type EPLogisticRegressionParams struct {
@@ -12,6 +15,35 @@ type EPLogisticRegressionParams struct {
 type EPLogisticRegression struct {
 	Model map[int64]*Gaussian
 	params EPLogisticRegressionParams
+}
+
+func (algo *EPLogisticRegression) SaveModel(path string) {
+	sb := StringBuilder{}
+	for f, g := range algo.Model {
+		sb.Int64(f)
+		sb.Write("\t")
+		sb.Float(g.mean)
+		sb.Write("\t")
+		sb.Float(g.vari)
+		sb.Write("\n")
+	}
+	sb.WriteToFile(path)
+}
+
+func (algo *EPLogisticRegression) LoadModel(path string) {
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	scaner := bufio.NewScanner(file)
+	for scaner.Scan() {
+		line := scaner.Text()
+		tks := strings.Split(line, "\t")
+		fid, _ := strconv.ParseInt(tks[0], 10, 64)
+		mean, _ := strconv.ParseFloat(tks[1], 64)
+		vari, _ := strconv.ParseFloat(tks[2], 64)
+		g := Gaussian{mean: mean, vari: vari}
+		algo.Model[fid] = &g
+	}
 }
 
 func (algo *EPLogisticRegression) Predict(sample * Sample) float64 {
@@ -90,8 +122,8 @@ func (algo *EPLogisticRegression) Train(dataset *DataSet) {
 			wi_new_vari := wi_vari * wi0.vari / (0.99 * wi0.vari + 0.01 * wi.vari)
 			wi.vari = wi_new_vari
 			wi.mean = wi.vari * (0.99 * wi.mean / wi_vari + 0.01 * wi0.mean / wi.vari)
-			if wi.vari < algo.params.init_var * 0.03 {
-				wi.vari = algo.params.init_var * 0.03
+			if wi.vari < algo.params.init_var * 0.01 {
+				wi.vari = algo.params.init_var * 0.01
 			}
 			algo.Model[feature.Id] = wi
 		}

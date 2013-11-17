@@ -20,6 +20,7 @@ func XORDataSet(n int) *DataSet{
 		sample.Label = label
 		sample.AddFeature(Feature{Id: 1, Value: x})
 		sample.AddFeature(Feature{Id: 2, Value: y})
+		sample.AddFeature(Feature{Id: 3, Value: 1.0})
 		ret.AddSample(sample)
 	}
 	return ret

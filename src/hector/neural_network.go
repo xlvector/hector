@@ -31,6 +31,14 @@ func RandomInitVector(dim int64) *Vector{
     return v
 }
 
+func (self *NeuralNetwork) SaveModel(path string){
+
+}
+
+func (self *NeuralNetwork) LoadModel(path string){
+    
+}
+
 func (algo *NeuralNetwork) Init(params map[string]string) {
     algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
     steps, _ := strconv.ParseInt(params["steps"], 10, 32)

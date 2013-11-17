@@ -16,6 +16,14 @@ type FactorizeMachineParams struct {
 	FactorNumber int
 }
 
+func (self *FactorizeMachine) SaveModel(path string){
+
+}
+
+func (self *FactorizeMachine) LoadModel(path string){
+	
+}
+
 func (c *FactorizeMachine) Predict(sample * Sample) float64 {
 	for _, f := range sample.Features{
 		c.w.RandomInit(f.Id, 0.1)

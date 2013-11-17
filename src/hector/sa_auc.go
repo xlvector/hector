@@ -9,6 +9,14 @@ type SAOptAUC struct {
 	Model map[int64]float64
 }
 
+func (self *SAOptAUC) SaveModel(path string){
+
+}
+
+func (self *SAOptAUC) LoadModel(path string){
+	
+}
+
 func (algo *SAOptAUC) Init(params map[string]string) {
 	algo.Model = make(map[int64]float64)
 }

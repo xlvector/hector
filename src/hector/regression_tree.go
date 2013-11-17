@@ -11,6 +11,14 @@ type RegressionTree struct {
 	params CARTParams
 }
 
+func (self *RegressionTree) SaveModel(path string){
+
+}
+
+func (self *RegressionTree) LoadModel(path string){
+	
+}
+
 func (dt *RegressionTree) GoLeft(sample *MapBasedSample, feature_split Feature) bool {
 	value, ok := sample.Features[feature_split.Id]
 	if ok && value >= feature_split.Value {

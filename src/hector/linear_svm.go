@@ -5,6 +5,9 @@ import (
 	"strconv"
 	"math/rand"
 	"fmt"
+	"os"
+	"bufio"
+	"strings"
 )
 
 /*
@@ -21,6 +24,31 @@ type LinearSVM struct {
 	w *Vector
 
 	xx []float64
+}
+
+func (self *LinearSVM) SaveModel(path string){
+	sb := StringBuilder{}
+	for f, g := range self.w.data {
+		sb.Int64(f)
+		sb.Write("\t")
+		sb.Float(g)
+		sb.Write("\n")
+	}
+	sb.WriteToFile(path)
+}
+
+func (self *LinearSVM) LoadModel(path string){
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	scaner := bufio.NewScanner(file)
+	for scaner.Scan() {
+		line := scaner.Text()
+		tks := strings.Split(line, "\t")
+		fid, _ := strconv.ParseInt(tks[0], 10, 64)
+		fw, _ := strconv.ParseFloat(tks[1], 64)
+		self.w.SetValue(fid, fw)
+	}
 }
 
 func (c *LinearSVM) Init(params map[string]string){
