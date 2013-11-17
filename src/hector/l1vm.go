@@ -27,7 +27,7 @@ type L1VM struct {
 }
 
 func (self *L1VM) SaveModel(path string){
-
+	
 }
 
 func (self *L1VM) LoadModel(path string){

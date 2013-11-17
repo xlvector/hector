@@ -2,6 +2,8 @@ package hector
 
 import (
 	"math/rand"
+	"strings"
+	"strconv"
 )
 
 type Vector struct {
@@ -12,6 +14,30 @@ func NewVector() *Vector {
 	v := Vector{}
 	v.data = make(map[int64]float64)
 	return &v
+}
+
+func (v *Vector) ToString() []byte {
+	sb := StringBuilder{}
+	for key, value := range v.data {
+		sb.Int64(key)
+		sb.Write(":")
+		sb.Float(value)
+		sb.Write("\t")
+	}
+	return sb.Bytes()
+}
+
+func (v *Vector) FromString(buf string) {
+	tks := strings.Split(buf, "\t")
+	for _, tk := range tks {
+		if len(tk) == 0 {
+			continue
+		}
+		kv := strings.Split(tk, ":")
+		key,_ := strconv.ParseInt(kv[0], 10, 64)
+		value,_ := strconv.ParseFloat(kv[1], 64)
+		v.data[key] = value
+	}
 }
 
 func (v *Vector) AddValue(key int64, value float64) {

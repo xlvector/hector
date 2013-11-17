@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"math"
 	"fmt"
+	"os"
+	"bufio"
 )
 
 type GBDT struct {
@@ -12,13 +14,35 @@ type GBDT struct {
 	shrink float64
 }
 
-
 func (self *GBDT) SaveModel(path string){
-
+	file, _ := os.Create(path)
+	defer file.Close()
+	for _, dt := range self.dts {
+		buf := dt.tree.ToString()
+		file.Write(buf)
+		file.WriteString("\n#\n")
+	}
 }
 
 func (self *GBDT) LoadModel(path string){
-	
+	file, _ := os.Open(path)
+	defer file.Close()
+
+	self.dts = []*RegressionTree{}
+	scanner := bufio.NewScanner(file)
+	text := ""
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "#" {
+			tree := Tree{}
+			tree.FromString(text)
+			dt := RegressionTree{tree: tree}
+			self.dts = append(self.dts, &dt)
+			text = ""
+		} else {
+			text += line + "\n"
+		}
+	}
 }
 
 func (c *GBDT) Init(params map[string]string) {

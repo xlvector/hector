@@ -4,6 +4,9 @@ import (
 	"strconv"
 	"sort"
 	"container/list"
+	"os"
+	"bufio"
+	"io/ioutil"
 )
 
 type RegressionTree struct {
@@ -12,11 +15,18 @@ type RegressionTree struct {
 }
 
 func (self *RegressionTree) SaveModel(path string){
-
+	ioutil.WriteFile(path, self.tree.ToString(), 0600)
 }
 
 func (self *RegressionTree) LoadModel(path string){
-	
+	file, _ := os.Open(path)
+	defer file.Close()
+	text := ""
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		text += scanner.Text() + "\n"
+	}
+	self.tree.FromString(string(text))
 }
 
 func (dt *RegressionTree) GoLeft(sample *MapBasedSample, feature_split Feature) bool {
