@@ -64,7 +64,7 @@ func (c *FactorizeMachine) Train(dataset * DataSet) {
 			c.params.LearningRate *= 0.9
 		}
 		pred := c.Predict(sample)
-		err := sample.Label - pred
+		err := sample.LabelDoubleValue() - pred
 		
 		vx := []float64{}
 		for _, vf := range c.v{

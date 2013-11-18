@@ -94,7 +94,7 @@ func AlgorithmRunOnDataSet(classifier Classifier, train_dataset, test_dataset *D
 		if pred_file != nil{
 			pred_file.WriteString(strconv.FormatFloat(prediction, 'g', 5, 64) + "\n")
 		}
-		predictions = append(predictions, &(LabelPrediction{Label: sample.Label, Prediction: prediction}))
+		predictions = append(predictions, &(LabelPrediction{Label: sample.LabelDoubleValue(), Prediction: prediction}))
 	}
 	if pred_path != ""{
 		defer pred_file.Close()

@@ -137,15 +137,8 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 		sample := Sample{Features: []Feature{}, Label: 0}
 		for i, tk := range tks {
 			if i == 0 {
-				label, err := strconv.ParseInt(tk, 10, 16)
-				if err != nil {
-					break
-				}
-				if label > 0 {
-					sample.Label = 1
-				} else {
-					sample.Label = 0
-				}
+				label, _ := strconv.Atoi(tk)
+				sample.Label = label
 			} else {
 				kv := strings.Split(tk, ":")
 				feature_id, err := strconv.ParseInt(kv[0], 10, 64)

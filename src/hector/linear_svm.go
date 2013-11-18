@@ -8,6 +8,7 @@ import (
 	"os"
 	"bufio"
 	"strings"
+	"runtime"
 )
 
 /*
@@ -111,4 +112,7 @@ func (c *LinearSVM) Train(dataset *DataSet) {
 		}
 		da0 = da
 	}
+
+	c.sv = nil
+	runtime.GC()
 }

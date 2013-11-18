@@ -60,17 +60,20 @@ func (c *GBDT) RMSE(dataset *DataSet) float64 {
 	rmse := 0.0
 	n := 0.0
 	for _, sample := range dataset.Samples {
-		rmse += (sample.Label) * (sample.Label)
+		rmse += (sample.Prediction) * (sample.Prediction)
 		n += 1.0
 	}
 	return math.Sqrt(rmse / n)
 }
 
 func (c *GBDT) Train(dataset *DataSet){
+	for _, sample := range dataset.Samples {
+		sample.Prediction = sample.LabelDoubleValue()
+	}
 	for k, dt := range c.dts {
 		dt.Train(dataset)
 		for _, sample := range dataset.Samples {
-			sample.Label -= c.shrink * dt.Predict(sample)
+			sample.Prediction -= c.shrink * dt.Predict(sample)
 		}
 		if k % 10 == 0 {
 			fmt.Println(c.RMSE(dataset))

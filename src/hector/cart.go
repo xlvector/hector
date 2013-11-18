@@ -48,7 +48,7 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, nod
 	total := 0
 	for _, k := range node.samples{
 		total += 1
-		positive += int(samples[k].Label)
+		positive += int(samples[k].LabelDoubleValue())
 		for fid, fvalue := range samples[k].Features{
 			if select_features != nil {
 				_, ok := select_features[fid]
@@ -60,7 +60,7 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, nod
 			if !ok {
 				feature_weight_labels[fid] = NewFeatureLabelDistribution()
 			}	
-			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Label)
+			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].LabelDoubleValue())
 		}
 	}
 	
@@ -88,7 +88,7 @@ func (dt *CART) FindBestSplitOfBinaryFeature(samples []*MapBasedSample, node *Tr
 	total := 0.0
 	for _, k := range node.samples{
 		total += 1.0
-		positive += samples[k].Label
+		positive += samples[k].LabelDoubleValue()
 		for fid, _ := range samples[k].Features{
 			if select_features != nil {
 				_, ok := select_features[fid]
@@ -96,7 +96,7 @@ func (dt *CART) FindBestSplitOfBinaryFeature(samples []*MapBasedSample, node *Tr
 					continue
 				}
 			}
-			feature_positive.AddValue(fid, samples[k].Label)
+			feature_positive.AddValue(fid, samples[k].LabelDoubleValue())
 			feature_total.AddValue(fid, 1.0)
 		}
 	}

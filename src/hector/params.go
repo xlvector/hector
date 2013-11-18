@@ -109,6 +109,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["profile"] = *profile
 	params["action"] = *action
 	params["model"] = *model
+	params["method"] = *method
 
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	

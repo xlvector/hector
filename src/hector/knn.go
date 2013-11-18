@@ -34,7 +34,7 @@ func (c *KNN) Predict(sample *Sample) float64 {
 	x := sample.GetFeatureVector()
 	predictions := []*LabelPrediction{}
 	for _, s := range c.sv {
-		predictions = append(predictions, &(LabelPrediction{Label:s.Label, Prediction:c.Kernel(s.GetFeatureVector(), x)}))
+		predictions = append(predictions, &(LabelPrediction{Label:s.LabelDoubleValue(), Prediction:c.Kernel(s.GetFeatureVector(), x)}))
 	}
 	
 	compare := func(p1, p2 *LabelPrediction) bool {

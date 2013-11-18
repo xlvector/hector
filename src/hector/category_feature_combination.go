@@ -29,7 +29,7 @@ func (c *CategoryFeatureCombination) OneCVAUC(dataset0 *RawDataSet, combines []C
 	predictions := []*LabelPrediction{}
 	for _, sample := range test.Samples {
 		pred := c.algo.Predict(sample)
-		lp := LabelPrediction{Label: sample.Label, Prediction: pred}
+		lp := LabelPrediction{Label: sample.LabelDoubleValue(), Prediction: pred}
 		predictions = append(predictions, &lp)
 	}
 	auc := AUC(predictions)

@@ -57,8 +57,8 @@ func (dt *RegressionTree) FindBestSplit(samples []*MapBasedSample, node *TreeNod
 	sum_total2 := 0.0
 	count_total := 0.0
 	for _, k := range node.samples{
-		sum_total += samples[k].Label
-		sum_total2 += samples[k].Label * samples[k].Label
+		sum_total += samples[k].Prediction
+		sum_total2 += samples[k].Prediction * samples[k].Prediction
 		count_total += 1.0
 	}
 
@@ -69,13 +69,13 @@ func (dt *RegressionTree) FindBestSplit(samples []*MapBasedSample, node *TreeNod
 	for _, k := range node.samples{
 		for fid, fvalue := range samples[k].Features {
 			feature_count_right.AddValue(fid, 1.0)
-			feature_sum_right.AddValue(fid, samples[k].Label)
-			feature_sum_right2.AddValue(fid, samples[k].Label * samples[k].Label)
+			feature_sum_right.AddValue(fid, samples[k].Prediction)
+			feature_sum_right2.AddValue(fid, samples[k].Prediction * samples[k].Prediction)
 			_, ok := feature_weight_labels[fid]
 			if !ok {
 				feature_weight_labels[fid] = NewFeatureLabelDistribution()
 			}
-			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Label)
+			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Prediction)
 		}
 	}
 	
@@ -117,11 +117,11 @@ func (dt *RegressionTree) AppendNodeToTree(samples []*MapBasedSample, node *Tree
 	for _, k := range node.samples {
 		if dt.GoLeft(samples[k], node.feature_split) {
 			left_node.samples = append(left_node.samples, k)
-			left_positive += samples[k].LabelDoubleValue()
+			left_positive += samples[k].Prediction
 			left_total += 1.0
 		} else {
 			right_node.samples = append(right_node.samples, k)
-			right_positive += samples[k].LabelDoubleValue()
+			right_positive += samples[k].Prediction
 			right_total += 1.0
 		}
 	}
@@ -153,7 +153,7 @@ func (dt *RegressionTree) SingleTreeBuild(samples []*MapBasedSample, select_feat
 	for i, sample := range samples {
 		root.AddSample(i)
 		total += 1.0
-		positive += sample.LabelDoubleValue()
+		positive += sample.Prediction
 	}
 	root.sample_count = len(root.samples)
 	root.prediction = positive / total

@@ -177,7 +177,7 @@ func InformationValue(dataset *DataSet) map[int64]float64 {
 			if !ok {
 				feature_weight_labels[feature.Id] = NewFeatureLabelDistribution()
 			}
-			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, sample.Label)
+			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, sample.LabelDoubleValue())
 		}
 	}
 	

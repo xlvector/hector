@@ -25,7 +25,7 @@ func (algo *SAOptAUC) TrainAUC(samples []*Sample) float64 {
 	predictions := []*LabelPrediction{}
 	for _, sample := range samples {
 		pred := algo.Predict(sample)
-		predictions = append(predictions, &(LabelPrediction{Label: sample.Label, Prediction: pred}))
+		predictions = append(predictions, &(LabelPrediction{Label: sample.LabelDoubleValue(), Prediction: pred}))
 	}
 	return AUC(predictions)
 }
