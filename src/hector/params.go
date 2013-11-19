@@ -6,7 +6,22 @@ import(
 	"strconv"
 	"math/rand"
 	"time"
+	"runtime"
 )
+
+func GetMutliClassClassifier(method string) MultiClassClassifier {
+	rand.Seed( time.Now().UTC().UnixNano())
+	var classifier MultiClassClassifier
+
+	if method == "rf" {
+		classifier = &(RandomForest{})
+	} else if method == "cart" {
+		classifier = &(CART{})
+	} else if method == "rdt" {
+		classifier = &(RandomDecisionTree{})
+	}
+	return classifier
+}
 
 func GetClassifier(method string) Classifier {
 	rand.Seed( time.Now().UTC().UnixNano())
@@ -64,7 +79,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	lambda2 := flag.String("lambda2", "0.1", "lambda2 of ftrl")
 	tree_count := flag.String("tree-count", "10", "tree count in rdt/rf")
 	feature_count := flag.String("feature-count", "-1", "feature count in rdt/rf")
-	gini := flag.String("gini", "0.5", "gini threshold, between (0, 0.5]")
+	gini := flag.String("gini", "1.0", "gini threshold, between (0, 0.5]")
 	min_leaf_size := flag.String("min-leaf-size", "10", "min leaf size in dt")
 	max_depth := flag.String("max-depth", "10", "max depth of dt")
 	factors := flag.String("factors", "10", "factor number in factorized machine")
@@ -79,8 +94,11 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	profile := flag.String("profile", "", "profile file name")
 	model := flag.String("model", "", "model file name")
 	action := flag.String("action", "", "train or test, do both if action is empty string")
+	core := flag.Int("core", 1, "core number when run program")
 	
+
 	flag.Parse()
+	runtime.GOMAXPROCS(*core)
 	fmt.Println(*train_path)
 	fmt.Println(*test_path)
 	fmt.Println(*method)

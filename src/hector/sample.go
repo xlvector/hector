@@ -24,6 +24,10 @@ func (s *RawSample) GetFeatureValue(key string) string {
 	}
 }
 
+
+/*
+Here, label should be int value started from 0
+*/
 type Sample struct {
 	Features []Feature
 	Label int

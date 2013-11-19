@@ -22,13 +22,13 @@ func (v *Vector) ToString() []byte {
 		sb.Int64(key)
 		sb.Write(":")
 		sb.Float(value)
-		sb.Write("\t")
+		sb.Write("|")
 	}
 	return sb.Bytes()
 }
 
 func (v *Vector) FromString(buf string) {
-	tks := strings.Split(buf, "\t")
+	tks := strings.Split(buf, "|")
 	for _, tk := range tks {
 		if len(tk) == 0 {
 			continue
@@ -88,6 +88,31 @@ func (v *Vector) Copy() *Vector{
 	ret := NewVector()
 	for key, val := range v.data {
 		ret.SetValue(key, val)
+	}
+	return ret
+}
+
+func (v *Vector) KeyWithMaxValue() (int64, float64) {
+	ret := int64(0)
+	max_val := 0.0
+	for key, val := range v.data {
+		max_val = val
+		ret = key
+		break
+	}
+	for key, val := range v.data {
+		if max_val < val {
+			max_val = val
+			ret = key
+		}
+	}
+	return ret, max_val
+}
+
+func (v *Vector) Sum() float64 {
+	ret := 0.0
+	for _, val := range v.data {
+		ret += val
 	}
 	return ret
 }

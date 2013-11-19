@@ -25,7 +25,7 @@ func SplitFile(dataset *hector.DataSet, total, part int) (*hector.DataSet, *hect
 }
 
 func main(){
-	train_path, _, _, _, params := hector.PrepareParams()
+	train_path, _, _, method, params := hector.PrepareParams()
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	profile, _ := params["profile"]
 	dataset := hector.NewDataSet()
@@ -46,9 +46,12 @@ func main(){
 	average_accuracy := 0.0
 	for part := 0; part < total; part++ {
 		train, test := SplitFile(dataset, total, part)
-		accuracy := hector.RunMultiClassClassification(train, test, params)
+		classifier := hector.GetMutliClassClassifier(method)
+		classifier.Init(params)
+		accuracy := hector.MultiClassRunOnDataSet(classifier, train, test, "", params)
 		fmt.Println("accuracy : ", accuracy)
 		average_accuracy += accuracy
+		classifier = nil
 	}
 	fmt.Println(average_accuracy / float64(total))
 }

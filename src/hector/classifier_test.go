@@ -42,7 +42,7 @@ func TestClassifiersOnXOR(t *testing.T) {
 	train_dataset := XORDataSet(1000)
 	test_dataset := XORDataSet(500)
 
-	algos := []string{"ann", "rf", "knn"}
+	algos := []string{"ann", "rf", "knn", "rdt"}
 
 	params := make(map[string]string)
 	params["steps"] = "10"

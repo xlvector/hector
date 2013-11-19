@@ -110,6 +110,7 @@ func (d *RawDataSet) Load(path string) error {
 
 type DataSet struct {
 	Samples []*Sample
+	max_label int
 }
 
 func NewDataSet() *DataSet {
@@ -139,6 +140,9 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 			if i == 0 {
 				label, _ := strconv.Atoi(tk)
 				sample.Label = label
+				if d.max_label < label {
+					d.max_label = label
+				}
 			} else {
 				kv := strings.Split(tk, ":")
 				feature_id, err := strconv.ParseInt(kv[0], 10, 64)

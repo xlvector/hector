@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"os"
 	"bufio"
+	"fmt"
 )
 
 type RandomForestParams struct {
@@ -106,7 +107,9 @@ func (dt *RandomForest) Train(dataset * DataSet) {
 		
 		tree := dt.cart.SingleTreeBuild(select_samples, select_features)
 		dt.trees = append(dt.trees, tree)
+		fmt.Printf(".")
 	}
+	fmt.Println()
 }
 
 func (dt *RandomForest) Predict(sample * Sample) float64 {
@@ -114,9 +117,22 @@ func (dt *RandomForest) Predict(sample * Sample) float64 {
 	predictions := 0.0
 	total := 0.0
 	for _, tree := range dt.trees{
-		node, _ := dt.cart.PredictBySingleTree(&tree, msample)
-		predictions += node.prediction
+		node, _ := PredictBySingleTree(&tree, msample)
+		predictions += node.prediction.GetValue(1)
 		total += 1.0
 	}
 	return predictions / total
+}
+
+func (dt *RandomForest) PredictMultiClass(sample * Sample) *ArrayVector {
+	msample := sample.ToMapBasedSample()
+	predictions := NewArrayVector()
+	total := 0.0
+	for _, tree := range dt.trees{
+		node, _ := PredictBySingleTree(&tree, msample)
+		predictions.AddVector(node.prediction, 1.0)
+		total += 1.0
+	}
+	predictions.Scale(1.0 / total)
+	return predictions
 }

@@ -52,7 +52,7 @@ func (dt *RegressionTree) GetElementFromQueue(queue *list.List, n int) []*TreeNo
 }
 
 func (dt *RegressionTree) FindBestSplit(samples []*MapBasedSample, node *TreeNode, select_features map[int64]bool){
-	feature_weight_labels := make(map[int64]*FeatureLabelDistribution)
+	feature_weight_labels := make(map[int64]*FeatureGoalDistribution)
 	sum_total := 0.0
 	sum_total2 := 0.0
 	count_total := 0.0
@@ -73,9 +73,9 @@ func (dt *RegressionTree) FindBestSplit(samples []*MapBasedSample, node *TreeNod
 			feature_sum_right2.AddValue(fid, samples[k].Prediction * samples[k].Prediction)
 			_, ok := feature_weight_labels[fid]
 			if !ok {
-				feature_weight_labels[fid] = NewFeatureLabelDistribution()
+				feature_weight_labels[fid] = NewFeatureGoalDistribution()
 			}
-			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Prediction)
+			feature_weight_labels[fid].AddWeightGoal(fvalue, samples[k].Prediction)
 		}
 	}
 	
@@ -107,8 +107,8 @@ func (dt *RegressionTree) AppendNodeToTree(samples []*MapBasedSample, node *Tree
 	if node.feature_split.Id < 0{
 		return
 	}
-	left_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: -1, sample_count: 0, samples: []int{}}
-	right_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: -1, sample_count: 0, samples: []int{}}
+	left_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: NewArrayVector(), sample_count: 0, samples: []int{}}
+	right_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: NewArrayVector(), sample_count: 0, samples: []int{}}
 
 	left_positive := 0.0
 	left_total := 0.0
@@ -129,7 +129,7 @@ func (dt *RegressionTree) AppendNodeToTree(samples []*MapBasedSample, node *Tree
 	
 	if len(left_node.samples) > dt.params.MinLeafSize {
 		left_node.sample_count = len(left_node.samples)
-		left_node.prediction = left_positive / left_total
+		left_node.prediction.SetValue(0, left_positive / left_total)
 		queue.PushBack(&left_node)
 		node.left = len(tree.nodes)
 		tree.AddTreeNode(&left_node)
@@ -137,7 +137,7 @@ func (dt *RegressionTree) AppendNodeToTree(samples []*MapBasedSample, node *Tree
 
 	if len(right_node.samples) > dt.params.MinLeafSize {
 		right_node.sample_count = len(right_node.samples)
-		right_node.prediction = right_positive / right_total
+		right_node.prediction.SetValue(0, right_positive / right_total)
 		queue.PushBack(&right_node)
 		node.right = len(tree.nodes)
 		tree.AddTreeNode(&right_node)
@@ -147,7 +147,7 @@ func (dt *RegressionTree) AppendNodeToTree(samples []*MapBasedSample, node *Tree
 func (dt *RegressionTree) SingleTreeBuild(samples []*MapBasedSample, select_features map[int64]bool) Tree {
 	tree := Tree{}
 	queue := list.New()
-	root := TreeNode{depth: 0, left: -1, right: -1, prediction: -1, samples: []int{}}
+	root := TreeNode{depth: 0, left: -1, right: -1, prediction: NewArrayVector(), samples: []int{}}
 	total := 0.0
 	positive := 0.0
 	for i, sample := range samples {
@@ -156,7 +156,7 @@ func (dt *RegressionTree) SingleTreeBuild(samples []*MapBasedSample, select_feat
 		positive += sample.Prediction
 	}
 	root.sample_count = len(root.samples)
-	root.prediction = positive / total
+	root.prediction.SetValue(0, positive / total)
 
 	queue.PushBack(&root)
 	tree.AddTreeNode(&root)
@@ -209,7 +209,7 @@ func (dt *RegressionTree) Train(dataset * DataSet) {
 func (dt *RegressionTree) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
 	node,_ := dt.PredictBySingleTree(&dt.tree, msample)
-	return node.prediction
+	return node.prediction.GetValue(0)
 }
 
 func (dt *RegressionTree) Init(params map[string]string) {

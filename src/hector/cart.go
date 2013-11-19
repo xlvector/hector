@@ -20,7 +20,7 @@ type CART struct {
 	continuous_features bool
 }
 
-func (rdt *CART) GoLeft(sample *MapBasedSample, feature_split Feature) bool {
+func DTGoLeft(sample *MapBasedSample, feature_split Feature) bool {
 	value, ok := sample.Features[feature_split.Id]
 	if ok && value >= feature_split.Value {
 		return true
@@ -29,7 +29,7 @@ func (rdt *CART) GoLeft(sample *MapBasedSample, feature_split Feature) bool {
 	}
 }
 
-func (dt *CART) GetElementFromQueue(queue *list.List, n int) []*TreeNode {
+func DTGetElementFromQueue(queue *list.List, n int) []*TreeNode {
 	ret := []*TreeNode{}
 	for i := 0; i < n; i++ {
 		node := queue.Front()
@@ -44,11 +44,9 @@ func (dt *CART) GetElementFromQueue(queue *list.List, n int) []*TreeNode {
 
 func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, node *TreeNode, select_features map[int64]bool){
 	feature_weight_labels := make(map[int64]*FeatureLabelDistribution)
-	positive := 0
-	total := 0
+	total_dis := NewArrayVector()
 	for _, k := range node.samples{
-		total += 1
-		positive += int(samples[k].LabelDoubleValue())
+		total_dis.AddValue(samples[k].Label, 1.0)
 		for fid, fvalue := range samples[k].Features{
 			if select_features != nil {
 				_, ok := select_features[fid]
@@ -60,7 +58,7 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, nod
 			if !ok {
 				feature_weight_labels[fid] = NewFeatureLabelDistribution()
 			}	
-			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].LabelDoubleValue())
+			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Label)
 		}
 	}
 	
@@ -68,7 +66,7 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, nod
 	node.feature_split = Feature{Id:-1, Value: 0}
 	for fid, distribution := range feature_weight_labels{
 		sort.Sort(distribution)
-		split, gini := distribution.BestSplitByGini(total, positive)
+		split, gini := distribution.BestSplitByGini(total_dis)
 		if min_gini > gini {
 			min_gini = gini
 			node.feature_split.Id = fid
@@ -82,13 +80,10 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*MapBasedSample, nod
 }
 
 func (dt *CART) FindBestSplitOfBinaryFeature(samples []*MapBasedSample, node *TreeNode, select_features map[int64]bool){
-	feature_positive := NewVector()
-	feature_total := NewVector()
-	positive := 0.0
-	total := 0.0
+	feature_right_dis := make(map[int64]*ArrayVector)
+	total_dis := NewArrayVector()
 	for _, k := range node.samples{
-		total += 1.0
-		positive += samples[k].LabelDoubleValue()
+		total_dis.AddValue(samples[node.samples[k]].Label, 1.0)
 		for fid, _ := range samples[k].Features{
 			if select_features != nil {
 				_, ok := select_features[fid]
@@ -96,15 +91,20 @@ func (dt *CART) FindBestSplitOfBinaryFeature(samples []*MapBasedSample, node *Tr
 					continue
 				}
 			}
-			feature_positive.AddValue(fid, samples[k].LabelDoubleValue())
-			feature_total.AddValue(fid, 1.0)
+			_, ok := feature_right_dis[fid]
+			if !ok {
+				feature_right_dis[fid] = NewArrayVector()
+			}
+			feature_right_dis[fid].AddValue(samples[k].Label, 1.0)
 		}
 	}
 	
 	min_gini := 1.0
 	node.feature_split = Feature{Id:-1, Value: 0}
-	for fid, ftotal := range feature_total.data{
-		gini := Gini(positive - feature_positive.GetValue(fid), total - ftotal, feature_positive.GetValue(fid), ftotal)
+	for fid, right_dis := range feature_right_dis{
+		left_dis := total_dis.Copy()
+		left_dis.AddVector(right_dis, -1.0)
+		gini := Gini(left_dis, right_dis)
 		if min_gini > gini {
 			min_gini = gini
 			node.feature_split.Id = fid
@@ -131,29 +131,25 @@ func (dt *CART) AppendNodeToTree(samples []*MapBasedSample, node *TreeNode, queu
 	if node.feature_split.Id < 0{
 		return
 	}
-	left_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: -1, sample_count: 0, samples: []int{}}
-	right_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: -1, sample_count: 0, samples: []int{}}
+	left_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: nil, sample_count: 0, samples: []int{}}
+	right_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: nil, sample_count: 0, samples: []int{}}
 
-	left_positive := 0.0
-	left_total := 0.0
-	right_positive := 0.0
-	right_total := 0.0
+	left_node.prediction = NewArrayVector()
+	right_node.prediction = NewArrayVector()
 	for _, k := range node.samples {
-		if dt.GoLeft(samples[k], node.feature_split) {
+		if DTGoLeft(samples[k], node.feature_split) {
 			left_node.samples = append(left_node.samples, k)
-			left_positive += samples[k].LabelDoubleValue()
-			left_total += 1.0
+			left_node.prediction.AddValue(samples[k].Label, 1.0)
 		} else {
 			right_node.samples = append(right_node.samples, k)
-			right_positive += samples[k].LabelDoubleValue()
-			right_total += 1.0
+			right_node.prediction.AddValue(samples[k].Label, 1.0)
 		}
 	}
 	node.samples = nil
 	
 	if len(left_node.samples) > dt.params.MinLeafSize {
 		left_node.sample_count = len(left_node.samples)
-		left_node.prediction = left_positive / left_total
+		left_node.prediction.Scale(1.0 / left_node.prediction.Sum())
 		queue.PushBack(&left_node)
 		node.left = len(tree.nodes)
 		tree.AddTreeNode(&left_node)
@@ -161,7 +157,7 @@ func (dt *CART) AppendNodeToTree(samples []*MapBasedSample, node *TreeNode, queu
 
 	if len(right_node.samples) > dt.params.MinLeafSize {
 		right_node.sample_count = len(right_node.samples)
-		right_node.prediction = right_positive / right_total
+		right_node.prediction.Scale(1.0 / right_node.prediction.Sum())
 		queue.PushBack(&right_node)
 		node.right = len(tree.nodes)
 		tree.AddTreeNode(&right_node)
@@ -171,21 +167,19 @@ func (dt *CART) AppendNodeToTree(samples []*MapBasedSample, node *TreeNode, queu
 func (dt *CART) SingleTreeBuild(samples []*MapBasedSample, select_features map[int64]bool) Tree {
 	tree := Tree{}
 	queue := list.New()
-	root := TreeNode{depth: 0, left: -1, right: -1, prediction: -1, samples: []int{}}
-	total := 0.0
-	positive := 0.0
+	root := TreeNode{depth: 0, left: -1, right: -1, prediction: NewArrayVector(), samples: []int{}}
+	
 	for i, sample := range samples {
 		root.AddSample(i)
-		total += 1.0
-		positive += sample.LabelDoubleValue()
+		root.prediction.AddValue(sample.Label, 1.0)
 	}
 	root.sample_count = len(root.samples)
-	root.prediction = positive / total
+	root.prediction.Scale(1.0 / root.prediction.Sum())
 
 	queue.PushBack(&root)
 	tree.AddTreeNode(&root)
 	for {
-		nodes := dt.GetElementFromQueue(queue, 10)
+		nodes := DTGetElementFromQueue(queue, 10)
 		if len(nodes) == 0 {
 			break
 		}
@@ -197,12 +191,12 @@ func (dt *CART) SingleTreeBuild(samples []*MapBasedSample, select_features map[i
 	return tree
 }
 
-func (dt *CART) PredictBySingleTree(tree *Tree, sample *MapBasedSample) (*TreeNode, string) {
+func PredictBySingleTree(tree *Tree, sample *MapBasedSample) (*TreeNode, string) {
 	path := ""
 	node := tree.GetNode(0)
 	path += node.ToString()
 	for {
-		if dt.GoLeft(sample, node.feature_split) {
+		if DTGoLeft(sample, node.feature_split) {
 			if node.left >= 0 && node.left < tree.Size() {
 				node = tree.GetNode(node.left)
 				path += "-" + node.ToString()
@@ -249,7 +243,13 @@ func (dt *CART) Train(dataset * DataSet) {
 
 func (dt *CART) Predict(sample * Sample) float64 {
 	msample := sample.ToMapBasedSample()
-	node,_ := dt.PredictBySingleTree(&dt.tree, msample)
+	node,_ := PredictBySingleTree(&dt.tree, msample)
+	return node.prediction.GetValue(1)
+}
+
+func (dt *CART) PredictMultiClass(sample * Sample)  *ArrayVector {
+	msample := sample.ToMapBasedSample()
+	node,_ := PredictBySingleTree(&dt.tree, msample)
 	return node.prediction
 }
 

@@ -7,11 +7,24 @@ import(
 
 type WeightLabel struct {
 	weight float64
-	label float64
+	label int
+}
+
+func (self *WeightLabel) LabelDoubleValue() float64{
+	return float64(self.label)
 }
 
 type FeatureLabelDistribution struct {
 	weight_label []WeightLabel
+}
+
+type WeightGoal struct {
+	weight float64
+	goal float64
+}
+
+type FeatureGoalDistribution struct {
+	weight_goal []WeightGoal
 }
 
 func NewFeatureLabelDistribution() *FeatureLabelDistribution{
@@ -20,9 +33,20 @@ func NewFeatureLabelDistribution() *FeatureLabelDistribution{
 	return &ret
 }
 
-func (f *FeatureLabelDistribution) AddWeightLabel(weight float64, label float64){
+func NewFeatureGoalDistribution() *FeatureGoalDistribution{
+	ret := FeatureGoalDistribution{}
+	ret.weight_goal = []WeightGoal{}
+	return &ret
+}
+
+func (f *FeatureLabelDistribution) AddWeightLabel(weight float64, label int){
 	wl := WeightLabel{weight:weight, label:label}
 	f.weight_label = append(f.weight_label, wl)
+}
+
+func (f *FeatureGoalDistribution) AddWeightGoal(weight float64, goal float64){
+	wl := WeightGoal{weight:weight, goal:goal}
+	f.weight_goal = append(f.weight_goal, wl)
 }
 
 func (f *FeatureLabelDistribution) Len() int {
@@ -37,6 +61,18 @@ func (f *FeatureLabelDistribution) Less(i, j int) bool {
 	return (f.weight_label[i].weight < f.weight_label[j].weight)
 }
 
+func (f *FeatureGoalDistribution) Len() int {
+	return len(f.weight_goal)
+}
+
+func (f *FeatureGoalDistribution) Swap(i, j int) {
+	f.weight_goal[i], f.weight_goal[j] = f.weight_goal[j], f.weight_goal[i]
+}
+
+func (f *FeatureGoalDistribution) Less(i, j int) bool {
+	return (f.weight_goal[i].weight < f.weight_goal[j].weight)
+}
+
 func (f *FeatureLabelDistribution) PositiveCount() int {
 	ret := 0
 	for _, e := range f.weight_label{
@@ -45,19 +81,27 @@ func (f *FeatureLabelDistribution) PositiveCount() int {
 	return ret
 }
 
-func (f *FeatureLabelDistribution) Variance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) float64 {
+func (f *FeatureLabelDistribution) LabelDistribution() *ArrayVector {
+	ret := NewArrayVector()
+	for _, e := range f.weight_label {
+		ret.AddValue(e.label, 1.0)
+	}
+	return ret
+}
+
+func (f *FeatureGoalDistribution) Variance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) float64 {
 	mean_left := sum_left / count_left
 	mean_right := sum_right / count_right
 
 	return sum_left2 + sum_right2 - mean_left * mean_left * count_left - mean_right * mean_right * count_right
 }
 
-func (f *FeatureLabelDistribution) BestSplitByVariance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) (float64, float64) {
+func (f *FeatureGoalDistribution) BestSplitByVariance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right float64) (float64, float64) {
 
 	min_vari := 100000.0
-	split := f.weight_label[0].weight - 1.0
-	prev_weight := f.weight_label[0].weight - 1.0
-	for _, wl := range f.weight_label{
+	split := f.weight_goal[0].weight - 1.0
+	prev_weight := f.weight_goal[0].weight - 1.0
+	for _, wl := range f.weight_goal{
 		if prev_weight != wl.weight{
 			vari := f.Variance(sum_left, sum_left2, count_left, sum_right, sum_right2, count_right)
 			if vari < min_vari{
@@ -66,17 +110,18 @@ func (f *FeatureLabelDistribution) BestSplitByVariance(sum_left, sum_left2, coun
 			}	
 		}
 		prev_weight = wl.weight
-		sum_left += wl.label
-		sum_left2 += wl.label * wl.label
+		sum_left += wl.goal
+		sum_left2 += wl.goal * wl.goal
 		count_left += 1.0
 
-		sum_right -= wl.label
-		sum_right2 -= wl.label * wl.label
+		sum_right -= wl.goal
+		sum_right2 -= wl.goal * wl.goal
 		count_right -= 1.0
 	}
 	return split, min_vari
 }
 
+/*
 func Gini(pleft, tleft, pright, tright float64) float64 {
 	if tleft == 0.0 || tright == 0.0{
 		return 1.0
@@ -88,7 +133,29 @@ func Gini(pleft, tleft, pright, tright float64) float64 {
 	ret := tleft * g1 / (tleft + tright) + tright * g2 / (tleft + tright)
 	return ret	
 }
+*/
 
+func Gini(left_dis, right_dis *ArrayVector) float64 {
+	left_sum := left_dis.Sum()
+	right_sum := right_dis.Sum()
+
+	if left_sum == 0.0 || right_sum == 0.0 {
+		return 1.0
+	}
+
+	left_gini := 1.0
+	for _, p := range left_dis.data {
+		left_gini -= (p / left_sum) * (p / left_sum)
+	}
+
+	right_gini := 1.0
+	for _, p := range right_dis.data {
+		right_gini -= (p / right_sum) * (p / right_sum)
+	}
+	return (left_sum * left_gini + right_sum * right_gini) / (left_sum + right_sum)
+}
+
+/*
 func (f *FeatureLabelDistribution) BestSplitByGini(total, positive int) (float64, float64) {
 	pright := float64(f.PositiveCount())
 	tright := float64(len(f.weight_label))
@@ -112,6 +179,30 @@ func (f *FeatureLabelDistribution) BestSplitByGini(total, positive int) (float64
 		pright -= float64(wl.label)
 	}
 	return split, min_gini	
+}
+*/
+
+func (self *FeatureLabelDistribution) BestSplitByGini(total_dis *ArrayVector) (float64, float64) {
+	left_dis := total_dis.Copy()
+	right_dis := self.LabelDistribution()
+	left_dis.AddVector(right_dis, -1.0)
+
+	min_gini := Gini(left_dis, right_dis)
+	split := self. weight_label[0].weight
+	prev_weight := self.weight_label[0].weight
+	for _, wl := range self.weight_label {
+		if prev_weight != wl.weight {
+			gini := Gini(left_dis, right_dis)
+			if gini < min_gini{
+				min_gini = gini
+				split = wl.weight
+			}
+		}
+		prev_weight = wl.weight
+		left_dis.AddValue(wl.label, 1.0)
+		right_dis.AddValue(wl.label, -1.0)
+	}
+	return split, min_gini
 }
 
 func (f *FeatureLabelDistribution) InformationValue(global_total, global_positive int) float64 {
@@ -177,7 +268,7 @@ func InformationValue(dataset *DataSet) map[int64]float64 {
 			if !ok {
 				feature_weight_labels[feature.Id] = NewFeatureLabelDistribution()
 			}
-			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, sample.LabelDoubleValue())
+			feature_weight_labels[feature.Id].AddWeightLabel(feature.Value, sample.Label)
 		}
 	}
 	
