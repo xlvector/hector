@@ -13,15 +13,13 @@ func main(){
 	classifier := hector.GetMutliClassClassifier(method)
 	
 	if action == "" {
-		auc, _, _ := hector.MultiClassRun(classifier, train, test, pred, params)
-		fmt.Println("AUC:")
-		fmt.Println(auc)
+		accuracy, _ := hector.MultiClassRun(classifier, train, test, pred, params)
+		fmt.Println("accuracy : ", accuracy)
 	} else if action == "train" {
 		hector.MultiClassTrain(classifier, train, params)
 
 	} else if action == "test" {
-		auc, _, _ := hector.MultiClassTest(classifier, test, pred, params)
-		fmt.Println("AUC:")
-		fmt.Println(auc)
+		accuracy, _ := hector.MultiClassTest(classifier, test, pred, params)
+		fmt.Println("accuracy", accuracy)
 	}
 }
