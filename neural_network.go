@@ -14,7 +14,7 @@ type NeuralNetworkParams struct {
 
 type TwoLayerWeights struct {
     L1 *Matrix
-    L2 *Vector
+    L2 *Matrix
 }
 
 type NeuralNetwork struct {
@@ -56,7 +56,11 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
     }
     
     initalized := make(map[int64]int)
+    max_label := 0
     for _, sample := range dataset.Samples {
+        if max_label < sample.Label{
+            max_label = sample.Label
+        }
         for _, f := range sample.Features{
             _, ok := initalized[f.Id]
             if !ok{
@@ -68,26 +72,32 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
         }
     }
     
-    algo.Model.L2 = NewVector()
+    algo.Model.L2 = NewMatrix()
     for i := int64(0); i < algo.Params.Hidden; i++ {
-        algo.Model.L2.data[i] = rand.NormFloat64()
+        for j := 0; j <= max_label; j++ {
+            algo.Model.L2.SetValue(i, j, (rand.Float64() - 0.5) / math.Sqrt(float64(max_label) + 1.0))
+        }
     }
 
     for step := 0; step < algo.Params.Steps; step++{
         for _, sample := range dataset.Samples {
             y := NewVector()
-            z := float64(0)
+            z := NewVector()
             for i := int64(0); i < algo.Params.Hidden; i++ {
                 sum := float64(0)
                 for _, f := range sample.Features {
                     sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
                 }
                 y.data[i] = Sigmoid(sum)
-                z += (y.data[i] * algo.Model.L2.data[i])
+                for j := 0; j <= max_label; j++ {
+                    z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, j))
+                }
             }
-            z = Sigmoid(z)
+            z = z.SoftMaxNorm()
 
-            err := sample.LabelDoubleValue() - z
+            err = NewVector()
+            err.AddValue(sample.Label, 1.0)
+            err.AddVector(z, -1.0)
             sig := NewVector()
             for key, val := range y.data {
                 sig.SetValue(key, err * algo.Model.L2.GetValue(key) * (1-val) * val)

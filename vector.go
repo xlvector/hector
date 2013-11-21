@@ -161,6 +161,18 @@ func (v *Vector) Scale(scale float64) *Vector{
 	return ret
 }
 
+func (v *Vector) SoftMaxNorm() *Vector {
+	sum := 0.0
+	for key, val := range v.data {
+		sum += math.Exp(val)
+	}
+	ret := NewVector()
+	for key, val := range v.data {
+		ret.SetValue(key, math.Exp(val) / sum)
+	}
+	return ret
+}
+
 func (v *Vector) ElemWiseAddVector(u *Vector) *Vector{
 	ret := NewVector()
 	for key, vi := range v.data{
