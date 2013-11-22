@@ -5,6 +5,7 @@ import(
 	"strconv"
 	"fmt"
 	"runtime/pprof"
+	"runtime"
 	"os"
 	"log"
 )
@@ -52,6 +53,9 @@ func main(){
 		fmt.Println("accuracy : ", accuracy)
 		average_accuracy += accuracy
 		classifier = nil
+		train = nil
+		test = nil
+		runtime.GC()
 	}
 	fmt.Println(average_accuracy / float64(total))
 }

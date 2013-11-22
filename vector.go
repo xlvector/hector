@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"strings"
 	"strconv"
+	"math"
 )
 
 type Vector struct {
@@ -163,7 +164,7 @@ func (v *Vector) Scale(scale float64) *Vector{
 
 func (v *Vector) SoftMaxNorm() *Vector {
 	sum := 0.0
-	for key, val := range v.data {
+	for _, val := range v.data {
 		sum += math.Exp(val)
 	}
 	ret := NewVector()
