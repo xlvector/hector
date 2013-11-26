@@ -4,10 +4,12 @@ import(
     "strconv"
     "math/rand"
     "math"
+    "fmt"
 )
 
 type NeuralNetworkParams struct {
     LearningRate float64
+    Regularization float64
     Hidden int64
     Steps int
 }
@@ -17,8 +19,14 @@ type TwoLayerWeights struct {
     L2 *Vector
 }
 
+
+/*
+Please refer to this chapter to know algorithm details : 
+http://www4.rgu.ac.uk/files/chapter3%20-%20bp.pdf
+*/
 type NeuralNetwork struct {
     Model TwoLayerWeights
+    MaxLabel int
     Params NeuralNetworkParams
 }
 
@@ -41,8 +49,10 @@ func (self *NeuralNetwork) LoadModel(path string){
 
 func (algo *NeuralNetwork) Init(params map[string]string) {
     algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
+    algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
     steps, _ := strconv.ParseInt(params["steps"], 10, 32)
     hidden, _ := strconv.ParseInt(params["hidden"], 10, 64)
+
     algo.Params.Steps = int(steps)
     algo.Params.Hidden = int64(hidden)
 }
@@ -67,13 +77,17 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
             }
         }
     }
+    algo.MaxLabel = max_label
     
     algo.Model.L2 = NewVector()
     for i := int64(0); i < algo.Params.Hidden; i++ {
-        algo.Model.L2.data[i] = rand.NormFloat64()
+        for j := int64(0); j <= int64(max_label); j++ {
+            algo.Model.L2.SetValue(i, j, (rand.NormFloat64() / math.Sqrt(float64(max_label) + 1.0)))
+        }
     }
 
     for step := 0; step < algo.Params.Steps; step++{
+        fmt.Printf(".")
         for _, sample := range dataset.Samples {
             y := NewVector()
             z := float64(0)
@@ -83,30 +97,59 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
                     sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
                 }
                 y.data[i] = Sigmoid(sum)
-                z += (y.data[i] * algo.Model.L2.data[i])
+                for j := int64(0); j <= int64(max_label); j++ {
+                    z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, j))
+                }
             }
             z = Sigmoid(z)
 
-            err := sample.LabelDoubleValue() - z
-            sig := NewVector()
-            for key, val := range y.data {
-                sig.SetValue(key, err * algo.Model.L2.GetValue(key) * (1-val) * val)
+            err := NewVector()
+            err.AddValue(int64(sample.Label), 1.0)
+            err.AddVector(z, -1.0)
+
+            delta_hidden := NewVector()
+            for i := int64(0); i < algo.Params.Hidden; i++ {
+                for j := int64(0); j <= int64(max_label); j++ {
+                    wij := algo.Model.L2.GetValue(i, j)
+                    delta_j := err.GetValue(j)
+                    
+                    sig_ij := delta_j * (1-z.GetValue(j)) * z.GetValue(j)
+                    delta_hidden.AddValue(i, sig_ij * wij)
+                    wij += algo.Params.LearningRate * (y.GetValue(i) * sig_ij - algo.Params.Regularization * wij)
+                    algo.Model.L2.SetValue(i, j, wij)
+                }
             }
-            for key, val := range algo.Model.L2.data {
-                algo.Model.L2.SetValue(key, val + algo.Params.LearningRate * y.GetValue(key) * err)
-            }
-            for i, s := range sig.data {
-                if s != 0 {
-                    for _, f := range sample.Features {
-                        val := algo.Model.L1.data[i].GetValue(f.Id)
-                        algo.Model.L1.SetValue(i, f.Id, val + algo.Params.LearningRate * s * f.Value)
-                    }
+
+            for _, f := range sample.Features {
+                for j := int64(0); j < algo.Params.Hidden; j++ {
+                    wij := algo.Model.L1.GetValue(j, f.Id)
+                    wij += algo.Params.LearningRate * (delta_hidden.GetValue(j) * f.Value * y.GetValue(j) * (1-y.GetValue(j)) - algo.Params.Regularization * wij)
+                    algo.Model.L1.SetValue(j, f.Id, wij)
                 }
             }
         }
     }
+    fmt.Println()
 }
 
-func (algo *NeuralNetwork) Predict(sample * Sample) float64 {
-    return Sigmoid(((algo.Model.L1.MultiplyVector(sample.GetFeatureVector())).ApplyOnElem(Sigmoid)).Dot(algo.Model.L2))
+func (algo *NeuralNetwork) PredictMultiClass(sample * Sample) * ArrayVector {
+    y := NewVector()
+    z := NewArrayVector()
+    for i := int64(0); i < algo.Params.Hidden; i++ {
+        sum := float64(0)
+        for _, f := range sample.Features {
+            sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
+        }
+        y.data[i] = Sigmoid(sum)
+        for j := 0; j <= algo.MaxLabel; j++ {
+            z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, int64(j)))
+        }
+    }
+    z = z.SoftMaxNorm()
+    return z
+}
+
+func (algo *NeuralNetwork) Predict(sample *Sample) float64 {
+    z := algo.PredictMultiClass(sample)
+    return z.GetValue(1)
 }

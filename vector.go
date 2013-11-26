@@ -2,6 +2,7 @@ package hector
 
 import (
 	"math/rand"
+	"math"
 	"strings"
 	"strconv"
 	"math"

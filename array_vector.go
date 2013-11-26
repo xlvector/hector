@@ -3,6 +3,7 @@ package hector
 import (
 	"strings"
 	"strconv"
+	"math"
 )
 
 type ArrayVector struct {
@@ -126,4 +127,16 @@ func (v *ArrayVector) Scale(s float64) {
 	for i, _ := range v.data {
 		v.data[i] *= s
 	}
+}
+
+func (v *ArrayVector) SoftMaxNorm() *ArrayVector {
+	sum := 0.0
+	for _, val := range v.data {
+		sum += math.Exp(val)
+	}
+	ret := NewArrayVector()
+	for key, val := range v.data {
+		ret.SetValue(key, math.Exp(val) / sum)
+	}
+	return ret
 }
