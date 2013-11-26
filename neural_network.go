@@ -113,21 +113,21 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
 
             delta_hidden := NewVector()
             for i := int64(0); i < algo.Params.Hidden; i++ {
-                out_i := y.GetValue(i)
                 for j := int64(0); j <= int64(max_label); j++ {
                     wij := algo.Model.L2.GetValue(i, j)
                     delta_j := err.GetValue(j)
                     
-                    wij += algo.Params.LearningRate * (out_i * delta_j - algo.Params.Regularization * wij)
+                    sig_ij := delta_j * (1-z.GetValue(j)) * z.GetValue(j)
+                    delta_hidden.AddValue(i, sig_ij * wij)
+                    wij += algo.Params.LearningRate * (y.GetValue(i) * sig_ij - algo.Params.Regularization * wij)
                     algo.Model.L2.SetValue(i, j, wij)
-                    delta_hidden.AddValue(i, out_i * (1.0 - out_i) * delta_j * wij)
                 }
             }
 
             for _, f := range sample.Features {
                 for j := int64(0); j < algo.Params.Hidden; j++ {
                     wij := algo.Model.L1.GetValue(j, f.Id)
-                    wij += algo.Params.LearningRate * (delta_hidden.GetValue(j) * f.Value - algo.Params.Regularization * wij)
+                    wij += algo.Params.LearningRate * (delta_hidden.GetValue(j) * f.Value * y.GetValue(j) * (1-y.GetValue(j)) - algo.Params.Regularization * wij)
                     algo.Model.L1.SetValue(j, f.Id, wij)
                 }
             }
