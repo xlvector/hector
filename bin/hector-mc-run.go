@@ -3,6 +3,9 @@ package main
 import(
 	"hector"
 	"fmt"
+	"log"
+	"runtime/pprof"
+	"os"
 )
 
 func main(){
@@ -12,6 +15,17 @@ func main(){
 
 	classifier := hector.GetMutliClassClassifier(method)
 	
+	profile, _ := params["profile"]
+	if profile != "" {
+		fmt.Printf("Profile data => %s\n", profile)
+		f, err := os.Create(profile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 	if action == "" {
 		accuracy, _ := hector.MultiClassRun(classifier, train, test, pred, params)
 		fmt.Println("accuracy : ", accuracy)

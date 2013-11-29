@@ -30,18 +30,18 @@ func main(){
 	profile, _ := params["profile"]
 	dataset := hector.NewDataSet()
 	dataset.Load(train_path, global)
-
+	
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
 	total := int(cv)
 
 	if profile != "" {
-        f, err := os.Create(profile)
-        if err != nil {
-            log.Fatal(err)
-        }
-        pprof.StartCPUProfile(f)
-        defer pprof.StopCPUProfile()
-    }
+		f, err := os.Create(profile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 	
 	average_accuracy := 0.0
 	for part := 0; part < total; part++ {

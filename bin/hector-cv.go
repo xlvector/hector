@@ -35,13 +35,15 @@ func main(){
 	total := int(cv)
 
 	if profile != "" {
-        f, err := os.Create(profile)
-        if err != nil {
-            log.Fatal(err)
-        }
-        pprof.StartCPUProfile(f)
-        defer pprof.StopCPUProfile()
-    }
+		fmt.Println(profile)
+		f, err := os.Create(profile)
+		if err != nil {
+			fmt.Println("%v", err)
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 	
 	average_auc := 0.0
 	for part := 0; part < total; part++ {
