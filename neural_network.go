@@ -9,9 +9,11 @@ import(
 
 type NeuralNetworkParams struct {
     LearningRate float64
+    LearningRateDiscount float64
     Regularization float64
     Hidden int64
     Steps int
+    Verbose int
 }
 
 type TwoLayerWeights struct {
@@ -26,7 +28,7 @@ http://www4.rgu.ac.uk/files/chapter3%20-%20bp.pdf
 */
 type NeuralNetwork struct {
     Model TwoLayerWeights
-    MaxLabel int
+    MaxLabel int64
     Params NeuralNetworkParams
 }
 
@@ -49,18 +51,22 @@ func (self *NeuralNetwork) LoadModel(path string){
 
 func (algo *NeuralNetwork) Init(params map[string]string) {
     algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
+    algo.Params.LearningRateDiscount, _ = strconv.ParseFloat(params["learning-rate-discount"], 64)
     algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
     steps, _ := strconv.ParseInt(params["steps"], 10, 32)
     hidden, _ := strconv.ParseInt(params["hidden"], 10, 64)
+    verbose, _ := strconv.ParseInt(params["verbose"], 10, 32)
 
     algo.Params.Steps = int(steps)
     algo.Params.Hidden = int64(hidden)
+    algo.Params.Verbose = int(verbose)
 }
 
 func (algo *NeuralNetwork) Train(dataset * DataSet) {
     algo.Model = TwoLayerWeights{}
-
     algo.Model.L1 = NewMatrix()
+    algo.Model.L2 = NewMatrix()
+
     for i := int64(0); i < algo.Params.Hidden; i++ {
         algo.Model.L1.data[i] = NewVector()
     }
@@ -81,57 +87,76 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
             }
         }
     }
-    algo.MaxLabel = max_label
+    algo.MaxLabel = int64(max_label)
     
-    algo.Model.L2 = NewMatrix()
-    for i := int64(0); i < algo.Params.Hidden; i++ {
-        for j := int64(0); j <= int64(max_label); j++ {
-            algo.Model.L2.SetValue(i, j, (rand.NormFloat64() / math.Sqrt(float64(max_label) + 1.0)))
+    for i := int64(0); i <= algo.Params.Hidden; i++ {
+        for j := int64(0); j < algo.MaxLabel; j++ {
+            algo.Model.L2.SetValue(i, j, (rand.NormFloat64() / math.Sqrt(float64(algo.MaxLabel) + 1.0)))
         }
     }
 
     for step := 0; step < algo.Params.Steps; step++{
-        fmt.Printf(".")
+        if algo.Params.Verbose <= 0 {
+            fmt.Printf(".")            
+        }
+        total := len(dataset.Samples)
+        counter := 0
         for _, sample := range dataset.Samples {
             y := NewVector()
             z := NewVector()
+            e := NewVector()
+            delta_hidden := NewVector()
+
             for i := int64(0); i < algo.Params.Hidden; i++ {
                 sum := float64(0)
+                wi := algo.Model.L1.data[i]
                 for _, f := range sample.Features {
-                    sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
+                    sum += f.Value * wi.GetValue(f.Id)
                 }
                 y.data[i] = Sigmoid(sum)
-                for j := int64(0); j <= int64(max_label); j++ {
-                    z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, j))
+            }
+            y.data[algo.Params.Hidden] = 1.0
+            for i := int64(0); i < algo.MaxLabel; i++ {
+                sum := float64(0)
+                for j := int64(0); j <= algo.Params.Hidden; j++ {
+                    sum += y.GetValue(j)*algo.Model.L2.GetValue(j, i)
                 }
+                z.SetValue(i, sum)
             }
             z = z.SoftMaxNorm()
+            e.SetValue(int64(sample.Label), 1.0)
+            e.AddVector(z, -1.0)
 
-            err := NewVector()
-            err.AddValue(int64(sample.Label), 1.0)
-            err.AddVector(z, -1.0)
-
-            delta_hidden := NewVector()
-            for i := int64(0); i < algo.Params.Hidden; i++ {
-                for j := int64(0); j <= int64(max_label); j++ {
+            for i := int64(0); i <= algo.Params.Hidden; i++ {
+                delta := float64(0)
+                for j := int64(0); j < algo.MaxLabel; j++ {
                     wij := algo.Model.L2.GetValue(i, j)
-                    delta_j := err.GetValue(j)
-                    
-                    sig_ij := delta_j * (1-z.GetValue(j)) * z.GetValue(j)
-                    delta_hidden.AddValue(i, sig_ij * wij)
+                    sig_ij := e.GetValue(j) * (1-z.GetValue(j)) * z.GetValue(j)
+                    delta += sig_ij * wij
                     wij += algo.Params.LearningRate * (y.GetValue(i) * sig_ij - algo.Params.Regularization * wij)
                     algo.Model.L2.SetValue(i, j, wij)
                 }
+                delta_hidden.SetValue(i, delta)
             }
 
-            for _, f := range sample.Features {
-                for j := int64(0); j < algo.Params.Hidden; j++ {
-                    wij := algo.Model.L1.GetValue(j, f.Id)
-                    wij += algo.Params.LearningRate * (delta_hidden.GetValue(j) * f.Value * y.GetValue(j) * (1-y.GetValue(j)) - algo.Params.Regularization * wij)
-                    algo.Model.L1.SetValue(j, f.Id, wij)
+            for i := int64(0); i < algo.Params.Hidden; i++ {
+                wi := algo.Model.L1.data[i]
+                for _, f := range sample.Features {
+                    wji := wi.GetValue(f.Id)
+                    wji += algo.Params.LearningRate * (delta_hidden.GetValue(i) * f.Value * y.GetValue(i) * (1-y.GetValue(i)) - algo.Params.Regularization * wji)
+                    wi.SetValue(f.Id, wji)
                 }
             }
+            counter++
+            if algo.Params.Verbose > 0 && counter % 2000 == 0 {
+                fmt.Printf("Epoch %d %f%%\n", step+1, float64(counter)/float64(total)*100)
+            }
         }
+
+        if algo.Params.Verbose > 0 {
+            algo.Evaluate(dataset)
+        }
+        algo.Params.LearningRate *= algo.Params.LearningRateDiscount
     }
     fmt.Println()
 }
@@ -145,9 +170,14 @@ func (algo *NeuralNetwork) PredictMultiClass(sample * Sample) * ArrayVector {
             sum += f.Value * algo.Model.L1.data[i].GetValue(f.Id)
         }
         y.data[i] = Sigmoid(sum)
-        for j := 0; j <= algo.MaxLabel; j++ {
-            z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, int64(j)))
+    }
+    y.data[algo.Params.Hidden] = 1
+    for i := 0; i < int(algo.MaxLabel); i++ {
+        sum := float64(0)
+        for j := int64(0); j <= algo.Params.Hidden; j++ {
+            sum += y.GetValue(j) * algo.Model.L2.GetValue(j, int64(i))
         }
+        z.SetValue(i, sum)
     }
     z = z.SoftMaxNorm()
     return z
@@ -158,3 +188,16 @@ func (algo *NeuralNetwork) Predict(sample *Sample) float64 {
     return z.GetValue(1)
 }
 
+func (algo *NeuralNetwork) Evaluate(dataset *DataSet) {
+    accuracy := 0.0
+    total := 0.0
+    for _, sample := range dataset.Samples {
+        prediction := algo.PredictMultiClass(sample)
+        label, _ := prediction.KeyWithMaxValue()
+        if int(label) == sample.Label {
+            accuracy += 1.0
+        }
+        total += 1.0
+    }
+    fmt.Printf("accuracy %f%%\n", accuracy/total*100)
+}
