@@ -180,7 +180,6 @@ func (algo *NeuralNetwork) PredictMultiClass(sample * Sample) * ArrayVector {
         z.SetValue(i, sum)
     }
     z = z.SoftMaxNorm()
-    fmt.Println(z)
     return z
 }
 
