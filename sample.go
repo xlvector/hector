@@ -43,6 +43,35 @@ func NewSample() *Sample {
 	return &ret
 }
 
+func (s *Sample) Clone() *Sample {
+	ret := NewSample()
+	ret.Label = s.Label
+	ret.Prediction = s.Prediction
+	for _, feature := range s.Features {
+		clone_feature := Feature{feature.Id, feature.Value}
+		ret.Features = append(ret.Features, clone_feature)
+	}
+
+	return ret
+}
+
+func (s *Sample) ToString(includePrediction bool) []byte {
+	sb := StringBuilder{}
+	sb.Int(s.Label)
+	sb.Write(" ")
+	if includePrediction {
+		sb.Float(s.Prediction)
+		sb.Write(" ")
+	}
+	for _, feature := range s.Features {
+		sb.Int64(feature.Id)
+		sb.Write(":")
+		sb.Float(feature.Value)
+		sb.Write(" ")
+	}
+	return sb.Bytes()
+}
+
 func (s *Sample) LabelDoubleValue() float64 {
 	if s.Label > 0 {
 		return 1.0
