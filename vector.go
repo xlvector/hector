@@ -5,7 +5,6 @@ import (
 	"math"
 	"strings"
 	"strconv"
-	"math"
 )
 
 type Vector struct {

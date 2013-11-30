@@ -21,6 +21,8 @@ func GetMutliClassClassifier(method string) MultiClassClassifier {
 		classifier = &(RandomDecisionTree{})
 	} else if method == "knn" {
 		classifier = &(KNN{})
+	} else if method == "ann" {
+		classifier = &(NeuralNetwork{})
 	}
 	return classifier
 }

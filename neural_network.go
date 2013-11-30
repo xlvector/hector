@@ -16,7 +16,7 @@ type NeuralNetworkParams struct {
 
 type TwoLayerWeights struct {
     L1 *Matrix
-    L2 *Vector
+    L2 *Matrix
 }
 
 
@@ -66,7 +66,11 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
     }
     
     initalized := make(map[int64]int)
+    max_label := 0
     for _, sample := range dataset.Samples {
+        if max_label < sample.Label{
+            max_label = sample.Label
+        }
         for _, f := range sample.Features{
             _, ok := initalized[f.Id]
             if !ok{
@@ -79,7 +83,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
     }
     algo.MaxLabel = max_label
     
-    algo.Model.L2 = NewVector()
+    algo.Model.L2 = NewMatrix()
     for i := int64(0); i < algo.Params.Hidden; i++ {
         for j := int64(0); j <= int64(max_label); j++ {
             algo.Model.L2.SetValue(i, j, (rand.NormFloat64() / math.Sqrt(float64(max_label) + 1.0)))
@@ -90,7 +94,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
         fmt.Printf(".")
         for _, sample := range dataset.Samples {
             y := NewVector()
-            z := float64(0)
+            z := NewVector()
             for i := int64(0); i < algo.Params.Hidden; i++ {
                 sum := float64(0)
                 for _, f := range sample.Features {
@@ -101,7 +105,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
                     z.AddValue(j, y.GetValue(i) * algo.Model.L2.GetValue(i, j))
                 }
             }
-            z = Sigmoid(z)
+            z = z.SoftMaxNorm()
 
             err := NewVector()
             err.AddValue(int64(sample.Label), 1.0)
@@ -146,6 +150,7 @@ func (algo *NeuralNetwork) PredictMultiClass(sample * Sample) * ArrayVector {
         }
     }
     z = z.SoftMaxNorm()
+    fmt.Println(z)
     return z
 }
 
