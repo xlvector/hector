@@ -216,7 +216,7 @@ func (v *Vector) ElemWiseMultiplyAdd(u *Vector, s float64) *Vector {
 
 func (v *Vector) ApplyElemWiseMultiplyAccumulation(u *Vector, s float64) {
 	for key, val := range u.data {
-		v.AddValue(val * s)
+		v.AddValue(key, val * s)
 	}
 }
 
