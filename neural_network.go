@@ -90,7 +90,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
     algo.MaxLabel = int64(max_label)
     
     for i := int64(0); i <= algo.Params.Hidden; i++ {
-        for j := int64(0); j < algo.MaxLabel; j++ {
+        for j := int64(0); j <= algo.MaxLabel; j++ {
             algo.Model.L2.SetValue(i, j, (rand.NormFloat64() / math.Sqrt(float64(algo.MaxLabel) + 1.0)))
         }
     }
@@ -116,7 +116,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
                 y.data[i] = Sigmoid(sum)
             }
             y.data[algo.Params.Hidden] = 1.0
-            for i := int64(0); i < algo.MaxLabel; i++ {
+            for i := int64(0); i <= algo.MaxLabel; i++ {
                 sum := float64(0)
                 for j := int64(0); j <= algo.Params.Hidden; j++ {
                     sum += y.GetValue(j)*algo.Model.L2.GetValue(j, i)
@@ -129,7 +129,7 @@ func (algo *NeuralNetwork) Train(dataset * DataSet) {
 
             for i := int64(0); i <= algo.Params.Hidden; i++ {
                 delta := float64(0)
-                for j := int64(0); j < algo.MaxLabel; j++ {
+                for j := int64(0); j <= algo.MaxLabel; j++ {
                     wij := algo.Model.L2.GetValue(i, j)
                     sig_ij := e.GetValue(j) * (1-z.GetValue(j)) * z.GetValue(j)
                     delta += sig_ij * wij
@@ -172,7 +172,7 @@ func (algo *NeuralNetwork) PredictMultiClass(sample * Sample) * ArrayVector {
         y.data[i] = Sigmoid(sum)
     }
     y.data[algo.Params.Hidden] = 1
-    for i := 0; i < int(algo.MaxLabel); i++ {
+    for i := 0; i <= int(algo.MaxLabel); i++ {
         sum := float64(0)
         for j := int64(0); j <= algo.Params.Hidden; j++ {
             sum += y.GetValue(j) * algo.Model.L2.GetValue(j, int64(i))
