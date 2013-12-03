@@ -2,6 +2,7 @@ package hector
 
 import (
 	"math/rand"
+	"math"
 	"strings"
 	"strconv"
 )
@@ -170,7 +171,7 @@ func (v *Vector) ApplyScale(scale float64) {
 
 func (v *Vector) SoftMaxNorm() *Vector {
 	sum := 0.0
-	for key, val := range v.data {
+	for _, val := range v.data {
 		sum += math.Exp(val)
 	}
 	ret := NewVector()

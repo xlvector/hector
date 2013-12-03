@@ -7,7 +7,6 @@ import (
 	"container/list"
 	"sync"
 	"fmt"
-	"runtime"
 )
 
 type TreeNode struct {
@@ -186,7 +185,6 @@ func (rdt *RandomDecisionTree) SingleTreeBuild(samples []*MapBasedSample) Tree {
 			rdt.AppendNodeToTree(samples, node, queue, &tree)
 		}
 	}
-	runtime.GC()
 	return tree
 }
 
@@ -203,7 +201,6 @@ func (rdt *RandomDecisionTree) Train(dataset * DataSet) {
 		samples = append(samples, sample.ToMapBasedSample())
 	}
 	dataset.Samples = nil
-	runtime.GC()
 
 	forest := make(chan *Tree, rdt.params.TreeCount)
 	var wait sync.WaitGroup

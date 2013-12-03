@@ -19,11 +19,12 @@ func (m *Matrix) AddValue(k1, k2 int64, v float64){
 }
 
 func (m *Matrix) SetValue(k1, k2 int64, v float64){
-	_, ok := m.data[k1]
+	row, ok := m.data[k1]
 	if !ok {
-		m.data[k1] = NewVector()
+		row = NewVector()
+		m.data[k1] = row
 	}
-	m.data[k1].SetValue(k2, v)
+	row.SetValue(k2, v)
 }
 
 func (m *Matrix) GetValue(k1, k2 int64) float64 {
@@ -42,7 +43,6 @@ func (m *Matrix) GetRow(k1 int64) *Vector {
 	} else {
 		return row
 	}
-	return row
 }
 
 func (m *Matrix) Scale(scale float64) *Matrix {

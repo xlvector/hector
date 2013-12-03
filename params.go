@@ -21,6 +21,8 @@ func GetMutliClassClassifier(method string) MultiClassClassifier {
 		classifier = &(RandomDecisionTree{})
 	} else if method == "knn" {
 		classifier = &(KNN{})
+	} else if method == "ann" {
+		classifier = &(NeuralNetwork{})
 	}
 	return classifier
 }
@@ -71,7 +73,9 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	test_path := flag.String("test", "test.tsv", "path of testing file")
 	pred_path := flag.String("pred", "", "path of pred file")
 	output := flag.String("output", "", "output file path")
+	verbose := flag.Int("v", 0, "verbose output if 1")
 	learning_rate := flag.String("learning-rate", "0.01", "learning rate")
+	learning_rate_discount := flag.String("learning-rate-discount", "1.0", "discount rate of learning rate per training step")
 	regularization := flag.String("regularization", "0.01", "regularization")
 	alpha := flag.String("alpha", "0.1", "alpha of ftrl")
 	beta := flag.String("beta", "1", "beta of ftrl")
@@ -104,7 +108,9 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	fmt.Println(*train_path)
 	fmt.Println(*test_path)
 	fmt.Println(*method)
+	params["verbose"] = strconv.FormatInt(int64(*verbose), 10)
 	params["learning-rate"] = *learning_rate
+	params["learning-rate-discount"] = *learning_rate_discount
 	params["regularization"] = *regularization
 	params["alpha"] = *alpha
 	params["beta"] = *beta
