@@ -161,6 +161,25 @@ func (v *Vector) Scale(scale float64) *Vector{
 	return ret
 }
 
+func (v *Vector) ApplyScale(scale float64) {
+	for key, val := range v.data {
+		v.data[key] = val * scale
+	}
+}
+
+
+func (v *Vector) SoftMaxNorm() *Vector {
+	sum := 0.0
+	for key, val := range v.data {
+		sum += math.Exp(val)
+	}
+	ret := NewVector()
+	for key, val := range v.data {
+		ret.SetValue(key, math.Exp(val) / sum)
+	}
+	return ret
+}
+
 func (v *Vector) ElemWiseAddVector(u *Vector) *Vector{
 	ret := NewVector()
 	for key, vi := range v.data{
@@ -181,6 +200,23 @@ func (v *Vector) ElemWiseMultiply(u *Vector) *Vector{
 		}
 	}
 	return ret
+}
+
+func (v *Vector) ElemWiseMultiplyAdd(u *Vector, s float64) *Vector {
+	ret := NewVector()
+	for key, val := range v.data {
+		ret.SetValue(key, val)
+	}
+	for key, val := range u.data {
+		ret.AddValue(key, val * s)
+	}
+	return ret
+}
+
+func (v *Vector) ApplyElemWiseMultiplyAccumulation(u *Vector, s float64) {
+	for key, val := range u.data {
+		v.AddValue(val * s)
+	}
 }
 
 func (v *Vector) OuterProduct(u *Vector) *Matrix{

@@ -48,7 +48,7 @@ func TestErrorRate(t *testing.T) {
 	predictions := []*LabelPrediction{}
 	for i := 0; i < 1000; i++ {
 		p := rand.Intn(2)
-		predictions = append(predictions, &(LabelPrediction{Label: p, Prediction: rand.Float64()}))
+		predictions = append(predictions, &(LabelPrediction{Label: p, Prediction: float64(p)}))
 	}
 	error_rate := ErrorRate(predictions)
 	if math.Abs(error_rate) > 1e-9{
