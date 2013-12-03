@@ -3,7 +3,6 @@ package hector
 import (
 	"testing"
 )
-
 func TestClassifiers(t *testing.T){
 	train_dataset := LinearDataSet(1000)
 	test_dataset := LinearDataSet(500)
@@ -46,7 +45,8 @@ func TestClassifiersOnXOR(t *testing.T) {
 	params["max-depth"] = "10"
 	params["min-leaf-size"] = "10"
 	params["tree-count"] = "100"
-	params["learning-rate"] = "0.01"
+	params["learning-rate"] = "0.1"
+	params["learning-rate-discount"] = "1.0"
 	params["regularization"] = "0.0001"
 	params["gini"] = "1.0"
 	params["hidden"] = "15"
