@@ -121,6 +121,9 @@ func NewDataSet() *DataSet {
 
 func (d *DataSet) AddSample(sample *Sample) {
 	d.Samples = append(d.Samples, sample)
+	if d.max_label < sample.Label {
+		d.max_label = sample.Label
+	}
 }
 
 func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
