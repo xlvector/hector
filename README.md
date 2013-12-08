@@ -61,3 +61,22 @@ Then, you can use model file to test any test dataset:
 
 	./hector-run --method [Method] --action test --test [Data Path] --model [Model Path]
 
+# Benchmark
+
+## Binary Classification
+
+Following are datasets used in benchmarks:
+
+1. [heart](http://hector.xlvector.net/dataset/heart_scale.tsv.gz)
+2. [fourclass](http://hector.xlvector.net/dataset/fourclass_scale.tsv.gz)
+
+I will do 5-fold cross validation on the dataset, and use AUC as evaluation metric. Following are the results:
+
+DataSet | Method | AUC
+------- | ------ | ---
+heart   | FTRL-LR   |0.9109
+heart   | EP-LR | 0.8982
+heart | CART | 0.8231
+heart | RDT | 0.9155
+heart | RF | 0.9019
+heart | GBDT | 0.9061
