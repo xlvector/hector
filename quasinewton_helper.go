@@ -26,7 +26,8 @@ type Minimizer interface {
 }
 
 const MAX_BACKTRACKING_ITER = 50
-	
+
+// Description: the pos and gradient arguments should NOT be modified outside
 func NewQuasiNewtonHelper(numHist int, minimizer Minimizer, curPos *Vector, curGrad *Vector) (*QuasiNewtonHelper) {
     h := new(QuasiNewtonHelper)
     h.numHist = int64(numHist)
@@ -92,7 +93,8 @@ func (h *QuasiNewtonHelper) BackTrackingLineSearch(cost float64, pos *Vector, gr
     return nextCost, nextPos
 }
 
-func (h *QuasiNewtonHelper) updateState(nextPos *Vector, nextGrad *Vector) (isOptimal bool) {
+// Description: the pos and gradient arguments should NOT be modified outside
+func (h *QuasiNewtonHelper) UpdateState(nextPos *Vector, nextGrad *Vector) (isOptimal bool) {
 	if int64(len(h.sList)) >= h.numHist {
 		h.sList = h.sList[1:]
 		h.yList = h.yList[1:]
