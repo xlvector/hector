@@ -15,6 +15,8 @@ type LBFGSMinimizer struct {
     tolerance float64
 }
 
+var lbfgs_output_switch bool = false
+
 func NewLBFGSMinimizer() (*LBFGSMinimizer) {
     m := new(LBFGSMinimizer)
     m.numHist = 10
@@ -32,26 +34,33 @@ func (m *LBFGSMinimizer) Minimize(costfun DiffFunction, init *Vector) *Vector {
     terminalCriterion.addCost(cost)
 
     var helper *QuasiNewtonHelper = NewQuasiNewtonHelper(m.numHist, m, pos, grad)
-    fmt.Println("Iter\tcost\timprovement")
-    fmt.Printf("%d\t%e\tUndefined\n", 0, cost)
+    if lbfgs_output_switch {
+        fmt.Println("Iter\tcost\timprovement")
+        fmt.Printf("%d\t%e\tUndefined", 0, cost)
+    }
     for iter:=1; iter <= m.maxIteration; iter++ {
         dir := grad.Copy()
         dir.ApplyScale(-1.0)
         helper.ApplyQuasiInverseHession(dir)
         newCost, newPos := helper.BackTrackingLineSearch(cost, pos, grad, dir, iter==1)
+        if lbfgs_output_switch {
+            fmt.Println("")
+        }
         if cost == newCost {
             break
         }
         cost = newCost
         pos = newPos
-        terminalCriterion.addCost(cost)
-        fmt.Printf("%d\t%e\t%e\n", iter, newCost, terminalCriterion.improvement)
-        if terminalCriterion.isTerminable() {
-            break
-        }
         grad = costfun.Gradient(pos).Copy()
-		if helper.UpdateState(pos, grad) {
-			break
+        terminalCriterion.addCost(cost)
+        if lbfgs_output_switch {
+            fmt.Printf("%d\t%e\t%e", iter, newCost, terminalCriterion.improvement)
+        }
+        if terminalCriterion.isTerminable() || helper.UpdateState(pos, grad) {
+            if lbfgs_output_switch {
+                fmt.Println("")
+            }
+            break
 		}
     }
 	return pos
@@ -62,5 +71,8 @@ func (m *LBFGSMinimizer) Evaluate(pos *Vector) float64 {
 }
 
 func (m *LBFGSMinimizer) NextPoint(curPos *Vector, dir *Vector, alpha float64) *Vector {
-	return curPos.ElemWiseMultiplyAdd(dir, alpha)
+	if lbfgs_output_switch {
+        fmt.Printf(".")
+    }
+    return curPos.ElemWiseMultiplyAdd(dir, alpha)
 }

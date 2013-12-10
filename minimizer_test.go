@@ -1,7 +1,6 @@
 package hector
 
 import(
-    "fmt"
     "testing"
     "math"
 )
@@ -15,7 +14,7 @@ type mseDiffFunction struct {
 
 func getMSECostFunction() *mseDiffFunction{
 	f := new(mseDiffFunction)
-    f.center.data = map[int64]float64 {0:0, 1:0}
+    f.center.data = map[int64]float64 {}
     f.weights.data = map[int64]float64 {0:1, 1:0.01}
     f.init.data = map[int64]float64 {0:1, 1:1}
     f.grad.data = map[int64]float64 {0:0, 1:0}
@@ -40,10 +39,6 @@ func (f *mseDiffFunction) Gradient(x *Vector) *Vector {
 }
 
 func (f *mseDiffFunction) testResult(result *Vector, tolerance float64, t *testing.T) {
-	fmt.Println("Index\tTrue\tResult")
-    for n, val := range f.center.data {
-		fmt.Printf("%d\t%e\t%e\n", n, val, result.GetValue(n))
-	}
     for n, val := range result.data {
 		if math.Abs(val - f.center.GetValue(n)) > tolerance {
 			t.Errorf("Mismatch\nIndex\tTrue\tResult\n%d\t%e\t%e\n", n, f.center.GetValue(n), val)
