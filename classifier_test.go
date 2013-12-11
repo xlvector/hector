@@ -7,7 +7,7 @@ func TestClassifiers(t *testing.T){
 	train_dataset := LinearDataSet(1000)
 	test_dataset := LinearDataSet(500)
 
-	algos := []string{"ep", "fm", "ftrl", "lr", "linear_svm"}
+	algos := []string{"ep", "fm", "ftrl", "lr", "linear_svm", "lr_owlqn"}
 
 	params := make(map[string]string)
 	params["beta"] = "1.0"

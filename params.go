@@ -61,7 +61,9 @@ func GetClassifier(method string) Classifier {
 		classifier = &(KNN{})	
 	} else if method == "ann" {
 		classifier = &(NeuralNetwork{})
-	}else {
+	} else if method == "lr_owlqn" {
+        classifier = &(LROWLQN{})
+    } else {
 		classifier = &(LogisticRegression{})
 	}
 	return classifier
