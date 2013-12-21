@@ -16,6 +16,8 @@ func FindCategory(split []float64, value float64) int {
 	return sort.Search(len(split), func(i int) bool { return split[i] >= value })
 }
 
+
+/* RawDataSet */
 type RawDataSet struct {
 	Samples []*RawSample
 	FeatureKeys map[string]bool
@@ -107,7 +109,7 @@ func (d *RawDataSet) Load(path string) error {
 	return nil
 }
 
-
+/* DataSet */
 type DataSet struct {
 	Samples []*Sample
 	max_label int
@@ -202,4 +204,64 @@ func (d *DataSet) Split(f func(int) bool) *DataSet {
 		}
 	}
 	return out_data
+}
+
+/* Real valued DataSet */
+type RealDataSet struct {
+	Samples []*RealSample
+}
+
+func NewRealDataSet() *RealDataSet {
+	ret := RealDataSet{}
+	ret.Samples = []*RealSample{}
+	return &ret
+}
+
+func (d *RealDataSet) AddSample(sample *RealSample) {
+	d.Samples = append(d.Samples, sample)
+}
+
+func (d *RealDataSet) Load(path string, global_bias_feature_id int64) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := strings.Replace(scanner.Text(), " ", "\t", -1)
+		tks := strings.Split(line, "\t")
+		sample := RealSample{Features: []Feature{}, Value: 0.0}
+		for i, tk := range tks {
+			if i == 0 {
+				value := ParseFloat64(tk)
+				sample.Value = value
+			} else {
+				kv := strings.Split(tk, ":")
+				feature_id, err := strconv.ParseInt(kv[0], 10, 64)
+				if err != nil {
+					break
+				}
+				feature_value := 1.0
+				if len(kv) > 1 {
+					feature_value, err = strconv.ParseFloat(kv[1], 64)
+					if err != nil {
+						break
+					}
+				}
+				feature := Feature{feature_id, feature_value}
+				sample.Features = append(sample.Features, feature)
+			}
+		}
+		if global_bias_feature_id >= 0 {
+			sample.Features = append(sample.Features, Feature{global_bias_feature_id, 1.0})
+		}
+		d.AddSample(&sample)
+	}
+	if scanner.Err() != nil {
+		return scanner.Err()
+	}
+	return nil
 }

@@ -6,8 +6,13 @@ import (
 )
 
 type LabelPrediction struct {
-	Label int
 	Prediction float64
+	Label int
+}
+
+type RealPrediction struct { // Real valued
+	Prediction float64
+	Value float64
 }
 
 type By func(p1, p2 *LabelPrediction) bool
@@ -90,3 +95,16 @@ func ErrorRate(predictions []*LabelPrediction) float64 {
 	}
 	return ret / n
 }
+
+func RegRMSE(predictions []*RealPrediction) float64 {
+	ret := 0.0
+	n := 0.0
+
+	for _, pred := range predictions {
+		ret += (pred.Value - pred.Prediction) * (pred.Value - pred.Prediction)
+		n += 1.0
+	}
+
+	return math.Sqrt(ret / n)
+}
+

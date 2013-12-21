@@ -1,37 +1,12 @@
 package hector
 
-type RawSample struct {
-	Features map[string]string
-	Label int
-
-	Prediction float64
-}
-
-func NewRawSample() *RawSample {
-	ret := RawSample{}
-	ret.Features = make(map[string]string)
-	ret.Label = 0
-	ret.Prediction = 0.0
-	return &ret
-}
-
-func (s *RawSample) GetFeatureValue(key string) string {
-	value, ok := s.Features[key]
-	if ok {
-		return value
-	} else {
-		return "nil"
-	}
-}
-
-
 /*
+Sample - for classification
 Here, label should be int value started from 0
 */
 type Sample struct {
 	Features []Feature
 	Label int
-
 	Prediction float64
 }
 
@@ -84,11 +59,36 @@ func (s *Sample) AddFeature(f Feature){
 	s.Features = append(s.Features, f)
 }
 
-type MapBasedSample struct {
-	Features map[int64]float64
-	Label int
 
-	Prediction float64	
+/* RawSample */
+type RawSample struct {
+	Label int
+	Prediction float64
+	Features map[string]string
+}
+
+func NewRawSample() *RawSample {
+	ret := RawSample{}
+	ret.Features = make(map[string]string)
+	ret.Label = 0
+	ret.Prediction = 0.0
+	return &ret
+}
+
+func (s *RawSample) GetFeatureValue(key string) string {
+	value, ok := s.Features[key]
+	if ok {
+		return value
+	} else {
+		return "nil"
+	}
+}
+
+/* MapBasedSample */
+type MapBasedSample struct {
+	Label int
+	Prediction float64
+	Features map[int64]float64
 }
 
 func (s *MapBasedSample) LabelDoubleValue() float64 {
@@ -114,3 +114,32 @@ func (s *Sample) GetFeatureVector() *Vector {
 	return ret
 }
 
+/*
+RealSample 
+Real valued samples for regression 
+*/
+type RealSample struct {
+	Features []Feature
+	Prediction float64
+	Value float64
+}
+
+func NewRealSample() *RealSample {
+	ret := RealSample{}
+	ret.Features = []Feature{}
+	ret.Value = 0.0
+	ret.Prediction = 0.0
+	return &ret
+}
+
+func (rs *RealSample) GetFeatureVector() *Vector {
+	ret := NewVector()
+	for _, f := range rs.Features {
+		ret.SetValue(f.Id, f.Value)
+	}
+	return ret
+}
+
+func (s *RealSample) AddFeature(f Feature){
+	s.Features = append(s.Features, f)
+}

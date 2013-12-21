@@ -1,6 +1,7 @@
 package hector
 
 import (
+	"math"
 	"math/rand"
 )
 
@@ -49,5 +50,26 @@ func LinearDataSet(n int) *DataSet {
 		}
 		ret.AddSample(sample)
 	}
+	return ret
+}
+
+func SinusoidalDataSet(n int) *RealDataSet {
+	ret := NewRealDataSet()
+
+	min := -5.0
+	max := 5.0
+	amp := 1.0
+	noise := 0.05
+	period := 4.0
+	interval := (max - min) / float64(n)
+	for i := 0; i < n; i++ {
+		x := min + interval * float64(i) + 0.5*interval
+		y := math.Sin((x-min)*2*math.Pi/period) * amp + rand.NormFloat64()*noise
+		sample := NewRealSample()
+		sample.AddFeature(Feature{Id: int64(1), Value: x})
+		sample.Value = y
+		ret.AddSample(sample)
+	}
+
 	return ret
 }

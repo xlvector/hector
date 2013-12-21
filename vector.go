@@ -227,3 +227,16 @@ func (v *Vector) OuterProduct(u *Vector) *Matrix{
 	}
 	return ret
 }
+
+func (v *Vector) MultiplyMatrix(m *Matrix) *Vector{
+	ret := NewVector()
+	for k, v := range v.data{
+		u, ok := m.data[k]
+		if ok{
+			for ki, ui := range u.data{
+				ret.data[ki] += v*ui
+			}
+		}
+	}
+	return ret
+}

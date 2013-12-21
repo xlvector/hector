@@ -69,6 +69,17 @@ func GetClassifier(method string) Classifier {
 	return classifier
 }
 
+func GetRegressor(method string) Regressor {
+	rand.Seed( time.Now().UTC().UnixNano())
+
+	var regressor Regressor
+
+	if method == "gp" {
+		regressor = &(GaussianProcess{})
+	}
+	return regressor
+}
+
 func PrepareParams() (string, string, string, string, map[string]string){
 	params := make(map[string]string)
 	train_path := flag.String("train", "train.tsv", "path of training file")
@@ -104,6 +115,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	action := flag.String("action", "", "train or test, do both if action is empty string")
 	core := flag.Int("core", 1, "core number when run program")
 	dt_sample_ratio := flag.String("dt-sample-ratio", "1.0", "sampling ratio when split feature in decision tree")
+	dim := flag.String("dim", "1", "input space dimension")
 
 	flag.Parse()
 	runtime.GOMAXPROCS(*core)
@@ -139,6 +151,7 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["model"] = *model
 	params["method"] = *method
 	params["dt-sample-ratio"] = *dt_sample_ratio
+	params["dim"] = *dim
 
 	fmt.Println(params)
 	return *train_path, *test_path, *pred_path, *method, params	

@@ -6,10 +6,10 @@ type Regressor interface {
     Init(params map[string]string)
 
     //Train model on a given dataset
-    Train(dataset * DataSet)
+    Train(dataset * RealDataSet)
 
     //Predict the output of an input sample
-    Predict(sample * Sample) float64
+    Predict(sample * RealSample) float64
 
     SaveModel(path string)
     LoadModel(path string)
