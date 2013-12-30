@@ -1,0 +1,9 @@
+#!/bin/bash
+
+go build hector-cv.go
+go build hector-run.go
+go build hector-mc-cv.go
+
+sudo cp hector-cv /usr/local/bin
+sudo cp hector-run /usr/local/bin
+sudo cp hector-mc-cv /usr/local/bin
