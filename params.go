@@ -7,75 +7,83 @@ import(
 	"math/rand"
 	"time"
 	"runtime"
+	"hector/lr"
+	"hector/algo"
+	"hector/svm"
+	"hector/ann"
+	"hector/dt"
+	"hector/fm"
+	"hector/sa"
+	"hector/gp"
 )
 
-func GetMutliClassClassifier(method string) MultiClassClassifier {
+func GetMutliClassClassifier(method string) algo.MultiClassClassifier {
 	rand.Seed( time.Now().UTC().UnixNano())
-	var classifier MultiClassClassifier
+	var classifier algo.MultiClassClassifier
 
 	if method == "rf" {
-		classifier = &(RandomForest{})
+		classifier = &(dt.RandomForest{})
 	} else if method == "cart" {
-		classifier = &(CART{})
+		classifier = &(dt.CART{})
 	} else if method == "rdt" {
-		classifier = &(RandomDecisionTree{})
+		classifier = &(dt.RandomDecisionTree{})
 	} else if method == "knn" {
-		classifier = &(KNN{})
+		classifier = &(svm.KNN{})
 	} else if method == "ann" {
-		classifier = &(NeuralNetwork{})
+		classifier = &(ann.NeuralNetwork{})
 	}
 	return classifier
 }
 
-func GetClassifier(method string) Classifier {
+func GetClassifier(method string) algo.Classifier {
 	rand.Seed( time.Now().UTC().UnixNano())
-	var classifier Classifier
+	var classifier algo.Classifier
 		
 	if method == "lr"{
-		classifier = &(LogisticRegression{})
+		classifier = &(lr.LogisticRegression{})
 	} else if method == "ftrl" {
-		classifier = &(FTRLLogisticRegression{})
+		classifier = &(lr.FTRLLogisticRegression{})
 	} else if method == "ep" {
-		classifier = &(EPLogisticRegression{})
+		classifier = &(lr.EPLogisticRegression{})
 	} else if method == "rdt" {
-		classifier = &(RandomDecisionTree{})
+		classifier = &(dt.RandomDecisionTree{})
 	} else if method == "cart" {
-		classifier = &(CART{})	
+		classifier = &(dt.CART{})	
 	} else if method == "cart-regression" {
-		classifier = &(RegressionTree{})	
+		classifier = &(dt.RegressionTree{})	
 	} else if method == "rf" {
-		classifier = &(RandomForest{})	
+		classifier = &(dt.RandomForest{})	
 	} else if method == "fm" {
-		classifier = &(FactorizeMachine{})	
+		classifier = &(fm.FactorizeMachine{})	
 	} else if method == "sa" {
-		classifier = &(SAOptAUC{})	
+		classifier = &(sa.SAOptAUC{})	
 	} else if method == "gbdt" {
-		classifier = &(GBDT{})
+		classifier = &(dt.GBDT{})
 	} else if method == "svm" {
-		classifier = &(SVM{})	
+		classifier = &(svm.SVM{})	
 	} else if method == "linear_svm" {
-		classifier = &(LinearSVM{})	
+		classifier = &(svm.LinearSVM{})	
 	} else if method == "l1vm" {
-		classifier = &(L1VM{})	
+		classifier = &(svm.L1VM{})	
 	} else if method == "knn" {
-		classifier = &(KNN{})	
+		classifier = &(svm.KNN{})	
 	} else if method == "ann" {
-		classifier = &(NeuralNetwork{})
+		classifier = &(ann.NeuralNetwork{})
 	} else if method == "lr_owlqn" {
-        classifier = &(LROWLQN{})
+        classifier = &(lr.LROWLQN{})
     } else {
-		classifier = &(LogisticRegression{})
+		classifier = &(lr.LogisticRegression{})
 	}
 	return classifier
 }
 
-func GetRegressor(method string) Regressor {
+func GetRegressor(method string) algo.Regressor {
 	rand.Seed( time.Now().UTC().UnixNano())
 
-	var regressor Regressor
+	var regressor algo.Regressor
 
 	if method == "gp" {
-		regressor = &(GaussianProcess{})
+		regressor = &(gp.GaussianProcess{})
 	}
 	return regressor
 }

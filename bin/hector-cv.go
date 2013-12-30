@@ -2,6 +2,7 @@ package main
 
 import(
 	"hector"
+	"hector/core"
 	"strconv"
 	"fmt"
 	"runtime/pprof"
@@ -9,10 +10,10 @@ import(
 	"log"
 )
 
-func SplitFile(dataset *hector.DataSet, total, part int) (*hector.DataSet, *hector.DataSet) {
+func SplitFile(dataset *core.DataSet, total, part int) (*core.DataSet, *core.DataSet) {
 
-	train := hector.NewDataSet()
-	test := hector.NewDataSet()
+	train := core.NewDataSet()
+	test := core.NewDataSet()
 
 	for i, sample := range dataset.Samples {
 		if i % total == part {
@@ -28,7 +29,7 @@ func main(){
 	train_path, _, _, method, params := hector.PrepareParams()
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	profile, _ := params["profile"]
-	dataset := hector.NewDataSet()
+	dataset := core.NewDataSet()
 	dataset.Load(train_path, global)
 
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)

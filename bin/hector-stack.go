@@ -2,6 +2,9 @@ package main
 
 import(
 	"hector"
+	"hector/core"
+	"hector/eval"
+	"hector/lr"
 	"os"
 	"strconv"
 	"fmt"
@@ -47,12 +50,12 @@ func main(){
 	train_path, test_path, pred_path, _, params := hector.PrepareParams()
 	total := 5
 	methods := []string{"ftrl", "fm"}
-	all_methods_predictions := [][]*hector.LabelPrediction{}
-	all_methods_test_predictions := [][]*hector.LabelPrediction{}
+	all_methods_predictions := [][]*eval.LabelPrediction{}
+	all_methods_test_predictions := [][]*eval.LabelPrediction{}
 	for _, method := range methods{
 		fmt.Println(method)
 		average_auc := 0.0
-		all_predictions := []*hector.LabelPrediction{}
+		all_predictions := []*eval.LabelPrediction{}
 		for part := 0; part < total; part++ {
 			train, test, _ := SplitFile(train_path, total, part)
 			classifier := hector.GetClassifier(method)
@@ -79,13 +82,13 @@ func main(){
 	
 	var wait sync.WaitGroup
 	wait.Add(2)
-	dataset := hector.NewDataSet()
+	dataset := core.NewDataSet()
 	go func(){
 		for i, _ := range all_methods_predictions[0] {
-			sample := hector.NewSample()
+			sample := core.NewSample()
 			sample.Label = all_methods_predictions[0][i].Label
 			for j, _ := range all_methods_predictions{
-				feature := hector.Feature{Id: int64(j), Value: all_methods_predictions[j][i].Prediction}
+				feature := core.Feature{Id: int64(j), Value: all_methods_predictions[j][i].Prediction}
 				sample.AddFeature(feature)
 			}
 			dataset.Samples <- sample
@@ -94,7 +97,7 @@ func main(){
 		wait.Done()
 	}()
 	
-	ensembler := hector.LinearRegression{}
+	ensembler := lr.LinearRegression{}
 	go func(){
 		ensembler.Init(params)
 		ensembler.Train(dataset)

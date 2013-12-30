@@ -11,11 +11,13 @@ package hector
 import (
 	"strconv"
 	"os"
+	"hector/core"
+	"hector/algo"
 )
 
-func MultiClassRun(classifier MultiClassClassifier, train_path string, test_path string, pred_path string, params map[string]string) (float64, error) {
+func MultiClassRun(classifier algo.MultiClassClassifier, train_path string, test_path string, pred_path string, params map[string]string) (float64, error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
-	train_dataset := NewDataSet()
+	train_dataset := core.NewDataSet()
 
 	err := train_dataset.Load(train_path, global)
 	
@@ -23,7 +25,7 @@ func MultiClassRun(classifier MultiClassClassifier, train_path string, test_path
 		return 0.5, err
 	}
 	
-	test_dataset := NewDataSet()
+	test_dataset := core.NewDataSet()
 	err = test_dataset.Load(test_path, global)
 	if err != nil{
 		return 0.5, err
@@ -34,9 +36,9 @@ func MultiClassRun(classifier MultiClassClassifier, train_path string, test_path
 	return accuracy, nil
 }
 
-func MultiClassTrain(classifier MultiClassClassifier, train_path string, params map[string]string) (error) {
+func MultiClassTrain(classifier algo.MultiClassClassifier, train_path string, params map[string]string) (error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
-	train_dataset := NewDataSet()
+	train_dataset := core.NewDataSet()
 
 	err := train_dataset.Load(train_path, global)
 	
@@ -56,7 +58,7 @@ func MultiClassTrain(classifier MultiClassClassifier, train_path string, params 
 	return nil
 }
 
-func MultiClassTest(classifier MultiClassClassifier, test_path string, pred_path string, params map[string]string) (float64, error) {
+func MultiClassTest(classifier algo.MultiClassClassifier, test_path string, pred_path string, params map[string]string) (float64, error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	
 	model_path, _ := params["model"]
@@ -67,7 +69,7 @@ func MultiClassTest(classifier MultiClassClassifier, test_path string, pred_path
 		return 0.0, nil
 	}
 
-	test_dataset := NewDataSet()
+	test_dataset := core.NewDataSet()
 	err := test_dataset.Load(test_path, global)
 	if err != nil{
 		return 0.0, err
@@ -78,7 +80,7 @@ func MultiClassTest(classifier MultiClassClassifier, test_path string, pred_path
 	return accuracy, nil
 }
 
-func MultiClassRunOnDataSet(classifier MultiClassClassifier, train_dataset, test_dataset *DataSet, pred_path string, params map[string]string) float64 {
+func MultiClassRunOnDataSet(classifier algo.MultiClassClassifier, train_dataset, test_dataset *core.DataSet, pred_path string, params map[string]string) float64 {
 	
 	if train_dataset != nil {
 		classifier.Train(train_dataset)

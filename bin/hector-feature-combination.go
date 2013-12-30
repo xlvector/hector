@@ -2,6 +2,8 @@ package main
 
 import(
 	"hector"
+	"hector/core"
+	"hector/combine"
 	"strings"
 	"os"
 )
@@ -9,10 +11,10 @@ import(
 func main(){
 	train, _, _, _, params := hector.PrepareParams()
 	
-	feature_combination := hector.CategoryFeatureCombination{}
+	feature_combination := combine.CategoryFeatureCombination{}
 	feature_combination.Init(params)
 
-	dataset := hector.NewRawDataSet()
+	dataset := core.NewRawDataSet()
 	dataset.Load(train)
 
 	combinations := feature_combination.FindCombination(dataset)

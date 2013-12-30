@@ -2,6 +2,7 @@ package main
 
 import(
     "hector"
+    "hector/core"
     "fmt"
     "log"
     "os"
@@ -15,7 +16,7 @@ func main () {
     if action == "encodelabel" {
         
         fmt.Println("encoded dataset label ..." + train)
-        e := hector.NewLabelEncoder()
+        e := core.NewLabelEncoder()
         EncodeLabelAction(e, train)
         fmt.Println("encoded dataset label ..." + test)
         EncodeLabelAction(e, test)
@@ -23,9 +24,9 @@ func main () {
 
 }
 
-func EncodeLabelAction(e *hector.LabelEncoder, data_path string) {
+func EncodeLabelAction(e *core.LabelEncoder, data_path string) {
 
-    dataset := hector.NewDataSet()
+    dataset := core.NewDataSet()
     err := dataset.Load(data_path, -1)
 
     if err != nil{
