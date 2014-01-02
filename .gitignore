@@ -19,9 +19,6 @@ dwfa
 dw
 dwcv
 test
-ftrl
-lr
-rdt
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
