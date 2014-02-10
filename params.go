@@ -1,24 +1,24 @@
 package hector
 
-import(
+import (
 	"flag"
 	"fmt"
-	"strconv"
+	"github.com/hector/algo"
+	"github.com/hector/ann"
+	"github.com/hector/dt"
+	"github.com/hector/fm"
+	"github.com/hector/gp"
+	"github.com/hector/lr"
+	"github.com/hector/sa"
+	"github.com/hector/svm"
 	"math/rand"
-	"time"
 	"runtime"
-	"hector/lr"
-	"hector/algo"
-	"hector/svm"
-	"hector/ann"
-	"hector/dt"
-	"hector/fm"
-	"hector/sa"
-	"hector/gp"
+	"strconv"
+	"time"
 )
 
 func GetMutliClassClassifier(method string) algo.MultiClassClassifier {
-	rand.Seed( time.Now().UTC().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 	var classifier algo.MultiClassClassifier
 
 	if method == "rf" {
@@ -36,10 +36,10 @@ func GetMutliClassClassifier(method string) algo.MultiClassClassifier {
 }
 
 func GetClassifier(method string) algo.Classifier {
-	rand.Seed( time.Now().UTC().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 	var classifier algo.Classifier
-		
-	if method == "lr"{
+
+	if method == "lr" {
 		classifier = &(lr.LogisticRegression{})
 	} else if method == "ftrl" {
 		classifier = &(lr.FTRLLogisticRegression{})
@@ -48,37 +48,37 @@ func GetClassifier(method string) algo.Classifier {
 	} else if method == "rdt" {
 		classifier = &(dt.RandomDecisionTree{})
 	} else if method == "cart" {
-		classifier = &(dt.CART{})	
+		classifier = &(dt.CART{})
 	} else if method == "cart-regression" {
-		classifier = &(dt.RegressionTree{})	
+		classifier = &(dt.RegressionTree{})
 	} else if method == "rf" {
-		classifier = &(dt.RandomForest{})	
+		classifier = &(dt.RandomForest{})
 	} else if method == "fm" {
-		classifier = &(fm.FactorizeMachine{})	
+		classifier = &(fm.FactorizeMachine{})
 	} else if method == "sa" {
-		classifier = &(sa.SAOptAUC{})	
+		classifier = &(sa.SAOptAUC{})
 	} else if method == "gbdt" {
 		classifier = &(dt.GBDT{})
 	} else if method == "svm" {
-		classifier = &(svm.SVM{})	
+		classifier = &(svm.SVM{})
 	} else if method == "linear_svm" {
-		classifier = &(svm.LinearSVM{})	
+		classifier = &(svm.LinearSVM{})
 	} else if method == "l1vm" {
-		classifier = &(svm.L1VM{})	
+		classifier = &(svm.L1VM{})
 	} else if method == "knn" {
-		classifier = &(svm.KNN{})	
+		classifier = &(svm.KNN{})
 	} else if method == "ann" {
 		classifier = &(ann.NeuralNetwork{})
 	} else if method == "lr_owlqn" {
-        classifier = &(lr.LROWLQN{})
-    } else {
+		classifier = &(lr.LROWLQN{})
+	} else {
 		classifier = &(lr.LogisticRegression{})
 	}
 	return classifier
 }
 
 func GetRegressor(method string) algo.Regressor {
-	rand.Seed( time.Now().UTC().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	var regressor algo.Regressor
 
@@ -88,7 +88,7 @@ func GetRegressor(method string) algo.Regressor {
 	return regressor
 }
 
-func PrepareParams() (string, string, string, string, map[string]string){
+func PrepareParams() (string, string, string, string, map[string]string) {
 	params := make(map[string]string)
 	train_path := flag.String("train", "train.tsv", "path of training file")
 	test_path := flag.String("test", "test.tsv", "path of testing file")
@@ -162,5 +162,5 @@ func PrepareParams() (string, string, string, string, map[string]string){
 	params["dim"] = *dim
 
 	fmt.Println(params)
-	return *train_path, *test_path, *pred_path, *method, params	
+	return *train_path, *test_path, *pred_path, *method, params
 }

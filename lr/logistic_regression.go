@@ -1,22 +1,22 @@
 package lr
 
-import(
-	"strconv"
-	"os"
-	"strings"
+import (
 	"bufio"
-	"hector/util"
-	"hector/core"
+	"github.com/hector/core"
+	"github.com/hector/util"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type LogisticRegressionParams struct {
-	LearningRate float64
+	LearningRate   float64
 	Regularization float64
-	Steps int
+	Steps          int
 }
 
 type LogisticRegression struct {
-	Model map[int64]float64
+	Model  map[int64]float64
 	Params LogisticRegressionParams
 }
 
@@ -47,16 +47,16 @@ func (algo *LogisticRegression) LoadModel(path string) {
 
 func (algo *LogisticRegression) Init(params map[string]string) {
 	algo.Model = make(map[int64]float64)
-	
+
 	algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
 	algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
 	steps, _ := strconv.ParseInt(params["steps"], 10, 32)
 	algo.Params.Steps = int(steps)
 }
 
-func (algo *LogisticRegression) Train(dataset * core.DataSet) {
+func (algo *LogisticRegression) Train(dataset *core.DataSet) {
 	algo.Model = make(map[int64]float64)
-	for step := 0; step < algo.Params.Steps; step++{
+	for step := 0; step < algo.Params.Steps; step++ {
 		for _, sample := range dataset.Samples {
 			prediction := algo.Predict(sample)
 			err := sample.LabelDoubleValue() - prediction
@@ -65,7 +65,7 @@ func (algo *LogisticRegression) Train(dataset * core.DataSet) {
 				if !ok {
 					model_feature_value = 0.0
 				}
-				model_feature_value += algo.Params.LearningRate * (err * feature.Value - algo.Params.Regularization * model_feature_value)
+				model_feature_value += algo.Params.LearningRate * (err*feature.Value - algo.Params.Regularization*model_feature_value)
 				algo.Model[feature.Id] = model_feature_value
 			}
 		}
@@ -73,12 +73,12 @@ func (algo *LogisticRegression) Train(dataset * core.DataSet) {
 	}
 }
 
-func (algo *LogisticRegression) Predict(sample * core.Sample) float64 {
+func (algo *LogisticRegression) Predict(sample *core.Sample) float64 {
 	ret := 0.0
 	for _, feature := range sample.Features {
 		model_feature_value, ok := algo.Model[feature.Id]
 		if ok {
-			ret += model_feature_value * feature.Value	
+			ret += model_feature_value * feature.Value
 		}
 	}
 	return util.Sigmoid(ret)

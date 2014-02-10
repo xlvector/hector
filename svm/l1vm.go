@@ -1,50 +1,48 @@
 package svm
 
 import (
+	"github.com/hector/core"
+	"github.com/hector/lr"
 	"math"
-	"strconv"
 	"math/rand"
-	"hector/core"
-	"hector/lr"
+	"strconv"
 )
 
 func Distance(x, y *core.Vector) float64 {
 	z := x.Copy()
 	z.AddVector(y, -1)
 	d := z.NormL2()
-	return d	
+	return d
 }
 
-func RBFKernel(x, y *core.Vector, radius float64) float64{
+func RBFKernel(x, y *core.Vector, radius float64) float64 {
 	d := Distance(x, y)
 	ret := math.Exp(-1.0 * d / radius)
 	return ret
 }
 
 type L1VM struct {
-	sv []*core.Vector
-	ftrl *lr.FTRLLogisticRegression
+	sv     []*core.Vector
+	ftrl   *lr.FTRLLogisticRegression
 	radius float64
-	count int
+	count  int
 }
 
-func (self *L1VM) SaveModel(path string){
-	
+func (self *L1VM) SaveModel(path string) {
+
 }
 
-func (self *L1VM) LoadModel(path string){
-	
+func (self *L1VM) LoadModel(path string) {
+
 }
 
-func (c *L1VM) Init(params map[string]string){
+func (c *L1VM) Init(params map[string]string) {
 	c.ftrl = &(lr.FTRLLogisticRegression{})
 	c.ftrl.Init(params)
 	c.radius, _ = strconv.ParseFloat(params["radius"], 64)
 	count, _ := strconv.ParseInt(params["sv"], 10, 64)
 	c.count = int(count)
 }
-
-
 
 func (c *L1VM) Predict(sample *core.Sample) float64 {
 	x := sample.GetFeatureVector()
@@ -54,7 +52,7 @@ func (c *L1VM) Predict(sample *core.Sample) float64 {
 func (c *L1VM) PredictVector(x *core.Vector) float64 {
 	s := core.NewSample()
 	for k, xs := range c.sv {
-		
+
 		s.AddFeature(core.Feature{Id: int64(k), Value: RBFKernel(xs, x, c.radius)})
 	}
 	return c.ftrl.Predict(s)
@@ -77,7 +75,7 @@ func (c *L1VM) Train(dataset *core.DataSet) {
 	perm_positive := rand.Perm(len(positive))
 
 	for i, k := range perm_positive {
-		if i > c.count{
+		if i > c.count {
 			break
 		}
 		c.sv = append(c.sv, dataset.Samples[positive[k]].GetFeatureVector())
@@ -86,7 +84,7 @@ func (c *L1VM) Train(dataset *core.DataSet) {
 	perm_negative := rand.Perm(len(negative))
 
 	for i, k := range perm_negative {
-		if i > c.count{
+		if i > c.count {
 			break
 		}
 		c.sv = append(c.sv, dataset.Samples[negative[k]].GetFeatureVector())

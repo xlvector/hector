@@ -1,7 +1,7 @@
 package core
 
 import (
-	"hector/util"
+	"github.com/hector/util"
 )
 
 /*
@@ -9,8 +9,8 @@ Sample - for classification
 Here, label should be int value started from 0
 */
 type Sample struct {
-	Features []Feature
-	Label int
+	Features   []Feature
+	Label      int
 	Prediction float64
 }
 
@@ -59,16 +59,15 @@ func (s *Sample) LabelDoubleValue() float64 {
 	}
 }
 
-func (s *Sample) AddFeature(f Feature){
+func (s *Sample) AddFeature(f Feature) {
 	s.Features = append(s.Features, f)
 }
 
-
 /* RawSample */
 type RawSample struct {
-	Label int
+	Label      int
 	Prediction float64
-	Features map[string]string
+	Features   map[string]string
 }
 
 func NewRawSample() *RawSample {
@@ -90,9 +89,9 @@ func (s *RawSample) GetFeatureValue(key string) string {
 
 /* MapBasedSample */
 type MapBasedSample struct {
-	Label int
+	Label      int
 	Prediction float64
-	Features map[int64]float64
+	Features   map[int64]float64
 }
 
 func (s *MapBasedSample) LabelDoubleValue() float64 {
@@ -104,10 +103,10 @@ func (s *Sample) ToMapBasedSample() *MapBasedSample {
 	ret.Features = make(map[int64]float64)
 	ret.Label = s.Label
 	ret.Prediction = s.Prediction
-	for _, feature := range s.Features{
+	for _, feature := range s.Features {
 		ret.Features[feature.Id] = feature.Value
 	}
-	return &ret	
+	return &ret
 }
 
 func (s *Sample) GetFeatureVector() *Vector {
@@ -119,13 +118,13 @@ func (s *Sample) GetFeatureVector() *Vector {
 }
 
 /*
-RealSample 
-Real valued samples for regression 
+RealSample
+Real valued samples for regression
 */
 type RealSample struct {
-	Features []Feature
+	Features   []Feature
 	Prediction float64
-	Value float64
+	Value      float64
 }
 
 func NewRealSample() *RealSample {
@@ -144,6 +143,6 @@ func (rs *RealSample) GetFeatureVector() *Vector {
 	return ret
 }
 
-func (s *RealSample) AddFeature(f Feature){
+func (s *RealSample) AddFeature(f Feature) {
 	s.Features = append(s.Features, f)
 }

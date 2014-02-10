@@ -1,16 +1,16 @@
 package svm
 
 import (
-	"math"
-	"strconv"
-	"math/rand"
-	"fmt"
-	"os"
 	"bufio"
-	"strings"
+	"fmt"
+	"github.com/hector/core"
+	"github.com/hector/util"
+	"math"
+	"math/rand"
+	"os"
 	"runtime"
-	"hector/core"
-	"hector/util"
+	"strconv"
+	"strings"
 )
 
 /*
@@ -19,17 +19,17 @@ You can download the paper from http://ntu.csie.org/~cjlin/papers/cddual.pdf
 */
 type LinearSVM struct {
 	sv []*core.Vector
-	y []float64
-	a []float64
-	b float64
-	C float64
-	e float64
-	w *core.Vector
+	y  []float64
+	a  []float64
+	b  float64
+	C  float64
+	e  float64
+	w  *core.Vector
 
 	xx []float64
 }
 
-func (self *LinearSVM) SaveModel(path string){
+func (self *LinearSVM) SaveModel(path string) {
 	sb := util.StringBuilder{}
 	for f, g := range self.w.Data {
 		sb.Int64(f)
@@ -40,7 +40,7 @@ func (self *LinearSVM) SaveModel(path string){
 	sb.WriteToFile(path)
 }
 
-func (self *LinearSVM) LoadModel(path string){
+func (self *LinearSVM) LoadModel(path string) {
 	file, _ := os.Open(path)
 	defer file.Close()
 
@@ -54,9 +54,9 @@ func (self *LinearSVM) LoadModel(path string){
 	}
 }
 
-func (c *LinearSVM) Init(params map[string]string){
-	c.C,_ = strconv.ParseFloat(params["c"], 64)
-	c.e,_ = strconv.ParseFloat(params["e"], 64)
+func (c *LinearSVM) Init(params map[string]string) {
+	c.C, _ = strconv.ParseFloat(params["c"], 64)
+	c.e, _ = strconv.ParseFloat(params["e"], 64)
 
 	c.w = core.NewVector()
 }
@@ -84,32 +84,32 @@ func (c *LinearSVM) Train(dataset *core.DataSet) {
 		} else {
 			c.y = append(c.y, -1.0)
 		}
-		c.a = append(c.a, c.C * rand.Float64() * 0.0)
-		c.w.AddVector(x, c.y[k] * c.a[k])
+		c.a = append(c.a, c.C*rand.Float64()*0.0)
+		c.w.AddVector(x, c.y[k]*c.a[k])
 	}
 
 	da0 := 0.0
 	for {
 		da := 0.0
 		for i, ai := range c.a {
-			g := c.y[i] * c.w.Dot(c.sv[i]) - 1.0
+			g := c.y[i]*c.w.Dot(c.sv[i]) - 1.0
 			pg := g
 			if ai < 1e-9 {
 				pg = math.Min(0.0, g)
-			} else if ai > c.C - 1e-9 {
+			} else if ai > c.C-1e-9 {
 				pg = math.Max(0.0, g)
 			}
 
 			if math.Abs(pg) > 1e-9 {
 				ai0 := ai
-				ai = math.Min(math.Max(0, ai - g / c.xx[i]), c.C)
-				c.w.AddVector(c.sv[i], (ai - ai0) * c.y[i])
+				ai = math.Min(math.Max(0, ai-g/c.xx[i]), c.C)
+				c.w.AddVector(c.sv[i], (ai-ai0)*c.y[i])
 				da += math.Abs(ai - ai0)
 			}
 		}
 		da /= float64(len(c.a))
 		fmt.Println(da)
-		if da < c.e || math.Abs(da - da0) < 1e-3 {
+		if da < c.e || math.Abs(da-da0) < 1e-3 {
 			break
 		}
 		da0 = da

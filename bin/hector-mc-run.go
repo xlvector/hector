@@ -1,20 +1,20 @@
 package main
 
-import(
-	"hector"
+import (
 	"fmt"
+	"github.com/hector"
 	"log"
-	"runtime/pprof"
 	"os"
+	"runtime/pprof"
 )
 
-func main(){
+func main() {
 	train, test, pred, method, params := hector.PrepareParams()
-	
+
 	action, _ := params["action"]
 
 	classifier := hector.GetMutliClassClassifier(method)
-	
+
 	profile, _ := params["profile"]
 	if profile != "" {
 		fmt.Printf("Profile data => %s\n", profile)

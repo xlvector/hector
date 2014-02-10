@@ -1,10 +1,10 @@
 package core
 
 import (
-	"strings"
-	"strconv"
+	"github.com/hector/util"
 	"math"
-	"hector/util"
+	"strconv"
+	"strings"
 )
 
 type ArrayVector struct {
@@ -32,12 +32,12 @@ func (v *ArrayVector) FromString(buf string) {
 		if len(tk) == 0 {
 			continue
 		}
-		value,_ := strconv.ParseFloat(tk, 64)
+		value, _ := strconv.ParseFloat(tk, 64)
 		v.data = append(v.data, value)
 	}
 }
 
-func (v *ArrayVector) Expand(size int){
+func (v *ArrayVector) Expand(size int) {
 	for len(v.data) < size {
 		v.data = append(v.data, 0.0)
 	}
@@ -48,8 +48,8 @@ func (v *ArrayVector) AddValue(key int, value float64) {
 	v.data[key] += value
 }
 
-func (v *ArrayVector) GetValue(key int) float64{
-	if key >= len(v.data){
+func (v *ArrayVector) GetValue(key int) float64 {
+	if key >= len(v.data) {
 		return 0.0
 	} else {
 		return v.data[key]
@@ -63,19 +63,19 @@ func (v *ArrayVector) SetValue(key int, value float64) {
 
 func (v *ArrayVector) AddVector(v2 *ArrayVector, alpha float64) {
 	for key, value := range v2.data {
-		v.AddValue(key, value * alpha)
+		v.AddValue(key, value*alpha)
 	}
 }
 
-func (v *ArrayVector) NormL2() float64{
+func (v *ArrayVector) NormL2() float64 {
 	ret := 0.0
-	for _, val := range v.data{
+	for _, val := range v.data {
 		ret += val * val
 	}
 	return ret
 }
 
-func (v *ArrayVector) Copy() *ArrayVector{
+func (v *ArrayVector) Copy() *ArrayVector {
 	ret := NewArrayVector()
 	for key, val := range v.data {
 		ret.SetValue(key, val)
@@ -108,7 +108,7 @@ func (v *ArrayVector) Sum() float64 {
 	return ret
 }
 
-func (v *ArrayVector) Dot(v2 *ArrayVector) float64{
+func (v *ArrayVector) Dot(v2 *ArrayVector) float64 {
 	va := v
 	vb := v2
 
@@ -117,11 +117,11 @@ func (v *ArrayVector) Dot(v2 *ArrayVector) float64{
 		vb = v
 	}
 	ret := 0.0
-	for key, a := range va.data{
+	for key, a := range va.data {
 		b := vb.data[key]
-		ret += a*b
+		ret += a * b
 	}
-	return ret	
+	return ret
 }
 
 func (v *ArrayVector) Scale(s float64) {
@@ -137,7 +137,7 @@ func (v *ArrayVector) SoftMaxNorm() *ArrayVector {
 	}
 	ret := NewArrayVector()
 	for key, val := range v.data {
-		ret.SetValue(key, math.Exp(val) / sum)
+		ret.SetValue(key, math.Exp(val)/sum)
 	}
 	return ret
 }

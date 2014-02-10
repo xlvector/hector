@@ -1,16 +1,16 @@
 package dt
 
 import (
-	"strconv"
-	"sort"
+	"bufio"
 	"container/list"
 	"fmt"
+	"github.com/hector/core"
 	"io/ioutil"
-	"os"
-	"bufio"
-	"math/rand"
 	"math"
-	"hector/core"
+	"math/rand"
+	"os"
+	"sort"
+	"strconv"
 )
 
 /*
@@ -18,10 +18,10 @@ CART is classification and regression tree, this class implement classification 
 to split features
 */
 type CART struct {
-	tree Tree
-	params CARTParams
+	tree                Tree
+	params              CARTParams
 	continuous_features bool
-	salt int64
+	salt                int64
 }
 
 func DTGoLeft(sample *core.MapBasedSample, feature_split core.Feature) bool {
@@ -37,7 +37,7 @@ func DTGetElementFromQueue(queue *list.List, n int) []*TreeNode {
 	ret := []*TreeNode{}
 	for i := 0; i < n; i++ {
 		node := queue.Front()
-		if node == nil{
+		if node == nil {
 			break
 		}
 		ret = append(ret, (node.Value.(*TreeNode)))
@@ -46,35 +46,35 @@ func DTGetElementFromQueue(queue *list.List, n int) []*TreeNode {
 	return ret
 }
 
-func (dt *CART) RandByFeatureId(fid int64) float64{
-	ret := fid * 19857 + dt.salt
-	r := math.Abs(float64(ret % 1000) / 1000.0)
+func (dt *CART) RandByFeatureId(fid int64) float64 {
+	ret := fid*19857 + dt.salt
+	r := math.Abs(float64(ret%1000) / 1000.0)
 	return r
 }
 
-func (dt *CART) FindBestSplitOfContinusousFeature(samples []*core.MapBasedSample, node *TreeNode, feature_select_prob float64){
+func (dt *CART) FindBestSplitOfContinusousFeature(samples []*core.MapBasedSample, node *TreeNode, feature_select_prob float64) {
 	feature_weight_labels := make(map[int64]*core.FeatureLabelDistribution)
 	total_dis := core.NewArrayVector()
-	for i, k := range node.samples{
+	for i, k := range node.samples {
 		if i > 10 && rand.Float64() > dt.params.SamplingRatio {
 			continue
 		}
 		total_dis.AddValue(samples[k].Label, 1.0)
-		for fid, fvalue := range samples[k].Features{
+		for fid, fvalue := range samples[k].Features {
 			if dt.RandByFeatureId(fid) > feature_select_prob {
 				continue
 			}
 			_, ok := feature_weight_labels[fid]
 			if !ok {
 				feature_weight_labels[fid] = core.NewFeatureLabelDistribution()
-			}	
+			}
 			feature_weight_labels[fid].AddWeightLabel(fvalue, samples[k].Label)
 		}
 	}
-	
+
 	min_gini := 1.0
-	node.feature_split = core.Feature{Id:-1, Value: 0}
-	for fid, distribution := range feature_weight_labels{
+	node.feature_split = core.Feature{Id: -1, Value: 0}
+	for fid, distribution := range feature_weight_labels {
 		sort.Sort(distribution)
 		split, gini := distribution.BestSplitByGini(total_dis)
 		if min_gini > gini {
@@ -89,15 +89,15 @@ func (dt *CART) FindBestSplitOfContinusousFeature(samples []*core.MapBasedSample
 	}
 }
 
-func (dt *CART) FindBestSplitOfBinaryFeature(samples []*core.MapBasedSample, node *TreeNode, feature_select_prob float64){
+func (dt *CART) FindBestSplitOfBinaryFeature(samples []*core.MapBasedSample, node *TreeNode, feature_select_prob float64) {
 	feature_right_dis := make(map[int64]*core.ArrayVector)
 	total_dis := core.NewArrayVector()
-	for i, k := range node.samples{
+	for i, k := range node.samples {
 		if i > 10 && rand.Float64() > dt.params.SamplingRatio {
 			continue
 		}
 		total_dis.AddValue(samples[k].Label, 1.0)
-		for fid, _ := range samples[k].Features{
+		for fid, _ := range samples[k].Features {
 			if dt.RandByFeatureId(fid) > feature_select_prob {
 				continue
 			}
@@ -108,10 +108,10 @@ func (dt *CART) FindBestSplitOfBinaryFeature(samples []*core.MapBasedSample, nod
 			feature_right_dis[fid].AddValue(samples[k].Label, 1.0)
 		}
 	}
-	
+
 	min_gini := 1.0
-	node.feature_split = core.Feature{Id:-1, Value: 0}
-	for fid, right_dis := range feature_right_dis{
+	node.feature_split = core.Feature{Id: -1, Value: 0}
+	for fid, right_dis := range feature_right_dis {
 		left_dis := total_dis.Copy()
 		left_dis.AddVector(right_dis, -1.0)
 		gini := core.Gini(left_dis, right_dis)
@@ -127,18 +127,17 @@ func (dt *CART) FindBestSplitOfBinaryFeature(samples []*core.MapBasedSample, nod
 	}
 }
 
-
 func (dt *CART) AppendNodeToTree(samples []*core.MapBasedSample, node *TreeNode, queue *list.List, tree *Tree, feature_select_prob float64) {
 	if node.depth >= dt.params.MaxDepth {
 		return
 	}
-	
+
 	if dt.continuous_features {
 		dt.FindBestSplitOfContinusousFeature(samples, node, feature_select_prob)
 	} else {
 		dt.FindBestSplitOfBinaryFeature(samples, node, feature_select_prob)
 	}
-	if node.feature_split.Id < 0{
+	if node.feature_split.Id < 0 {
 		return
 	}
 	left_node := TreeNode{depth: node.depth + 1, left: -1, right: -1, prediction: nil, sample_count: 0, samples: []int{}}
@@ -156,7 +155,7 @@ func (dt *CART) AppendNodeToTree(samples []*core.MapBasedSample, node *TreeNode,
 		}
 	}
 	node.samples = nil
-	
+
 	if len(left_node.samples) > dt.params.MinLeafSize {
 		left_node.sample_count = len(left_node.samples)
 		left_node.prediction.Scale(1.0 / left_node.prediction.Sum())
@@ -178,7 +177,7 @@ func (dt *CART) SingleTreeBuild(samples []*core.MapBasedSample, feature_select_p
 	tree := Tree{}
 	queue := list.New()
 	root := TreeNode{depth: 0, left: -1, right: -1, prediction: core.NewArrayVector(), samples: []int{}}
-	
+
 	if !bootstrap {
 		for i, sample := range samples {
 			root.AddSample(i)
@@ -201,7 +200,7 @@ func (dt *CART) SingleTreeBuild(samples []*core.MapBasedSample, feature_select_p
 		if len(nodes) == 0 {
 			break
 		}
-		
+
 		for _, node := range nodes {
 			dt.AppendNodeToTree(samples, node, queue, &tree, feature_select_prob)
 		}
@@ -233,10 +232,10 @@ func PredictBySingleTree(tree *Tree, sample *core.MapBasedSample) (*TreeNode, st
 	return node, path
 }
 
-func (dt *CART) Train(dataset * core.DataSet) {
+func (dt *CART) Train(dataset *core.DataSet) {
 	samples := []*core.MapBasedSample{}
 	feature_weights := make(map[int64]float64)
-	for _,sample := range dataset.Samples{
+	for _, sample := range dataset.Samples {
 		if !dt.continuous_features {
 			for _, f := range sample.Features {
 				_, ok := feature_weights[f.Id]
@@ -259,23 +258,23 @@ func (dt *CART) Train(dataset * core.DataSet) {
 	dt.tree = dt.SingleTreeBuild(samples, 1.0, false)
 }
 
-func (dt *CART) Predict(sample * core.Sample) float64 {
+func (dt *CART) Predict(sample *core.Sample) float64 {
 	msample := sample.ToMapBasedSample()
-	node,_ := PredictBySingleTree(&dt.tree, msample)
+	node, _ := PredictBySingleTree(&dt.tree, msample)
 	return node.prediction.GetValue(1)
 }
 
-func (dt *CART) PredictMultiClass(sample * core.Sample)  *core.ArrayVector {
+func (dt *CART) PredictMultiClass(sample *core.Sample) *core.ArrayVector {
 	msample := sample.ToMapBasedSample()
-	node,_ := PredictBySingleTree(&dt.tree, msample)
+	node, _ := PredictBySingleTree(&dt.tree, msample)
 	return node.prediction
 }
 
-func (self *CART) SaveModel(path string){
+func (self *CART) SaveModel(path string) {
 	ioutil.WriteFile(path, self.tree.ToString(), 0600)
 }
 
-func (self *CART) LoadModel(path string){
+func (self *CART) LoadModel(path string) {
 	file, _ := os.Open(path)
 	defer file.Close()
 	text := ""
@@ -286,10 +285,9 @@ func (self *CART) LoadModel(path string){
 	self.tree.FromString(string(text))
 }
 
-
 type CARTParams struct {
-	MaxDepth   int
-	MinLeafSize int
+	MaxDepth      int
+	MinLeafSize   int
 	GiniThreshold float64
 	SamplingRatio float64
 }
@@ -299,11 +297,10 @@ func (dt *CART) Init(params map[string]string) {
 	dt.continuous_features = false
 	min_leaf_size, _ := strconv.ParseInt(params["min-leaf-size"], 10, 32)
 	max_depth, _ := strconv.ParseInt(params["max-depth"], 10, 32)
-	
+
 	dt.params.MinLeafSize = int(min_leaf_size)
 	dt.params.MaxDepth = int(max_depth)
 	dt.params.GiniThreshold, _ = strconv.ParseFloat(params["gini"], 64)
 	dt.salt = rand.Int63n(10000000000)
 	dt.params.SamplingRatio, _ = strconv.ParseFloat(params["dt-sample-ratio"], 64)
 }
-

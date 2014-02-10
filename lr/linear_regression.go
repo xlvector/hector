@@ -1,16 +1,16 @@
 package lr
 
-import(
-	"strconv"
-	"os"
+import (
 	"bufio"
+	"github.com/hector/core"
+	"github.com/hector/util"
+	"os"
+	"strconv"
 	"strings"
-	"hector/core"
-	"hector/util"
 )
 
 type LinearRegression struct {
-	Model map[int64]float64
+	Model  map[int64]float64
 	Params LogisticRegressionParams
 }
 
@@ -41,14 +41,14 @@ func (algo *LinearRegression) LoadModel(path string) {
 
 func (algo *LinearRegression) Init(params map[string]string) {
 	algo.Model = make(map[int64]float64)
-	
+
 	algo.Params.LearningRate, _ = strconv.ParseFloat(params["learning-rate"], 64)
 	algo.Params.Regularization, _ = strconv.ParseFloat(params["regularization"], 64)
 }
 
-func (algo *LinearRegression) Train(dataset * core.DataSet) {
+func (algo *LinearRegression) Train(dataset *core.DataSet) {
 	algo.Model = make(map[int64]float64)
-	for step := 0; step < algo.Params.Steps; step++{
+	for step := 0; step < algo.Params.Steps; step++ {
 		for _, sample := range dataset.Samples {
 			prediction := algo.Predict(sample)
 			err := sample.LabelDoubleValue() - prediction
@@ -57,7 +57,7 @@ func (algo *LinearRegression) Train(dataset * core.DataSet) {
 				if !ok {
 					model_feature_value = 0.0
 				}
-				model_feature_value += algo.Params.LearningRate * (err * feature.Value - algo.Params.Regularization * model_feature_value)
+				model_feature_value += algo.Params.LearningRate * (err*feature.Value - algo.Params.Regularization*model_feature_value)
 				algo.Model[feature.Id] = model_feature_value
 			}
 		}
@@ -65,12 +65,12 @@ func (algo *LinearRegression) Train(dataset * core.DataSet) {
 	}
 }
 
-func (algo *LinearRegression) Predict(sample * core.Sample) float64 {
+func (algo *LinearRegression) Predict(sample *core.Sample) float64 {
 	ret := 0.0
 	for _, feature := range sample.Features {
 		model_feature_value, ok := algo.Model[feature.Id]
 		if ok {
-			ret += model_feature_value * feature.Value	
+			ret += model_feature_value * feature.Value
 		}
 	}
 	return ret

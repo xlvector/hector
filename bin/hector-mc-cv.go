@@ -1,14 +1,14 @@
 package main
 
-import(
-	"hector"
-	"hector/core"
-	"strconv"
+import (
 	"fmt"
-	"runtime/pprof"
-	"runtime"
-	"os"
+	"github.com/hector"
+	"github.com/hector/core"
 	"log"
+	"os"
+	"runtime"
+	"runtime/pprof"
+	"strconv"
 )
 
 func SplitFile(dataset *core.DataSet, total, part int) (*core.DataSet, *core.DataSet) {
@@ -17,7 +17,7 @@ func SplitFile(dataset *core.DataSet, total, part int) (*core.DataSet, *core.Dat
 	test := core.NewDataSet()
 
 	for i, sample := range dataset.Samples {
-		if i % total == part {
+		if i%total == part {
 			test.AddSample(sample)
 		} else {
 			train.AddSample(sample)
@@ -26,13 +26,13 @@ func SplitFile(dataset *core.DataSet, total, part int) (*core.DataSet, *core.Dat
 	return train, test
 }
 
-func main(){
+func main() {
 	train_path, _, _, method, params := hector.PrepareParams()
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	profile, _ := params["profile"]
 	dataset := core.NewDataSet()
 	dataset.Load(train_path, global)
-	
+
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
 	total := int(cv)
 
@@ -44,7 +44,7 @@ func main(){
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 	}
-	
+
 	average_accuracy := 0.0
 	for part := 0; part < total; part++ {
 		train, test := SplitFile(dataset, total, part)

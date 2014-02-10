@@ -1,16 +1,16 @@
 package main
 
-import(
-	"hector"
-	"hector/core"
-	"hector/combine"
-	"strings"
+import (
+	"github.com/hector"
+	"github.com/hector/combine"
+	"github.com/hector/core"
 	"os"
+	"strings"
 )
 
-func main(){
+func main() {
 	train, _, _, _, params := hector.PrepareParams()
-	
+
 	feature_combination := combine.CategoryFeatureCombination{}
 	feature_combination.Init(params)
 

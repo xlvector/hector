@@ -1,20 +1,20 @@
 package dt
 
 import (
+	"container/list"
+	"fmt"
+	"github.com/hector/core"
+	"github.com/hector/util"
 	"math/rand"
 	"strconv"
 	"strings"
-	"container/list"
 	"sync"
-	"fmt"
-	"hector/core"
-	"hector/util"
 )
 
 type TreeNode struct {
 	left, right, depth int
 	prediction         *core.ArrayVector
-	sample_count		int
+	sample_count       int
 	samples            []int
 	feature_split      core.Feature
 }
@@ -71,7 +71,7 @@ func (t *Tree) ToString() []byte {
 func (t *Tree) FromString(buf string) {
 	lines := strings.Split(buf, "\n")
 	size, _ := strconv.Atoi(lines[0])
-	t.nodes = make([]*TreeNode, size + 1, size + 1)
+	t.nodes = make([]*TreeNode, size+1, size+1)
 	for _, line := range lines[1:] {
 		if len(line) == 0 {
 			break
@@ -95,20 +95,20 @@ func (t *Tree) FromString(buf string) {
 type RDTParams struct {
 	TreeCount   int
 	MinLeafSize int
-	MaxDepth int
+	MaxDepth    int
 }
 
 type RandomDecisionTree struct {
-	trees []*Tree
+	trees  []*Tree
 	params RDTParams
 }
 
-func (self *RandomDecisionTree) SaveModel(path string){
+func (self *RandomDecisionTree) SaveModel(path string) {
 
 }
 
-func (self *RandomDecisionTree) LoadModel(path string){
-	
+func (self *RandomDecisionTree) LoadModel(path string) {
+
 }
 
 func (rdt *RandomDecisionTree) AppendNodeToTree(samples []*core.MapBasedSample, node *TreeNode, queue *list.List, tree *Tree) {
@@ -120,7 +120,7 @@ func (rdt *RandomDecisionTree) AppendNodeToTree(samples []*core.MapBasedSample, 
 
 	random_sample := samples[node.samples[rand.Intn(len(node.samples))]]
 
-	split := core.Feature{Id:-1, Value: -1.0}
+	split := core.Feature{Id: -1, Value: -1.0}
 	for fid, fvalue := range random_sample.Features {
 		if split.Id < 0 || rand.Intn(len(random_sample.Features)) == 0 {
 			split.Id = fid
@@ -166,8 +166,8 @@ func (rdt *RandomDecisionTree) SingleTreeBuild(samples []*core.MapBasedSample) T
 	tree := Tree{}
 	queue := list.New()
 	root := TreeNode{depth: 0, left: -1, right: -1, prediction: core.NewArrayVector(), samples: []int{}}
-	
-	for i := 0; i < len(samples); i++{
+
+	for i := 0; i < len(samples); i++ {
 		k := rand.Intn(len(samples))
 		root.AddSample(k)
 		root.prediction.AddValue(samples[k].Label, 1.0)
@@ -182,7 +182,7 @@ func (rdt *RandomDecisionTree) SingleTreeBuild(samples []*core.MapBasedSample) T
 		if len(nodes) == 0 {
 			break
 		}
-		
+
 		for _, node := range nodes {
 			rdt.AppendNodeToTree(samples, node, queue, &tree)
 		}
@@ -190,16 +190,16 @@ func (rdt *RandomDecisionTree) SingleTreeBuild(samples []*core.MapBasedSample) T
 	return tree
 }
 
-func (rdt *RandomDecisionTree) RandomShuffle(features []core.Feature){
+func (rdt *RandomDecisionTree) RandomShuffle(features []core.Feature) {
 	for i := range features {
-	    j := rand.Intn(i + 1)
-	    features[i], features[j] = features[j], features[i]
+		j := rand.Intn(i + 1)
+		features[i], features[j] = features[j], features[i]
 	}
 }
 
-func (rdt *RandomDecisionTree) Train(dataset * core.DataSet) {
+func (rdt *RandomDecisionTree) Train(dataset *core.DataSet) {
 	samples := []*core.MapBasedSample{}
-	for _, sample := range dataset.Samples{
+	for _, sample := range dataset.Samples {
 		samples = append(samples, sample.ToMapBasedSample())
 	}
 	dataset.Samples = nil
@@ -218,28 +218,28 @@ func (rdt *RandomDecisionTree) Train(dataset * core.DataSet) {
 	wait.Wait()
 	fmt.Println()
 	close(forest)
-	for tree := range forest{
+	for tree := range forest {
 		rdt.trees = append(rdt.trees, tree)
 	}
 }
 
-func (rdt *RandomDecisionTree) Predict(sample * core.Sample) float64 {
+func (rdt *RandomDecisionTree) Predict(sample *core.Sample) float64 {
 	ret := 0.0
 	total := 0.0
 	msample := sample.ToMapBasedSample()
-	for _,tree := range rdt.trees{
+	for _, tree := range rdt.trees {
 		node, _ := PredictBySingleTree(tree, msample)
 		ret += node.prediction.GetValue(1)
 		total += 1.0
-	}	
+	}
 	return ret / total
 }
 
-func (rdt *RandomDecisionTree) PredictMultiClass(sample * core.Sample) *core.ArrayVector {
+func (rdt *RandomDecisionTree) PredictMultiClass(sample *core.Sample) *core.ArrayVector {
 	msample := sample.ToMapBasedSample()
 	predictions := core.NewArrayVector()
 	total := 0.0
-	for _, tree := range rdt.trees{
+	for _, tree := range rdt.trees {
 		node, _ := PredictBySingleTree(tree, msample)
 		predictions.AddVector(node.prediction, 1.0)
 		total += 1.0
@@ -254,4 +254,3 @@ func (rdt *RandomDecisionTree) Init(params map[string]string) {
 	rdt.params.TreeCount, _ = strconv.Atoi(params["tree-count"])
 	rdt.params.MaxDepth, _ = strconv.Atoi(params["max-depth"])
 }
-

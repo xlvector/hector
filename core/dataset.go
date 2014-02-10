@@ -2,11 +2,11 @@ package core
 
 import (
 	"bufio"
+	"github.com/hector/util"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
-	"hector/util"
 )
 
 type CombinedFeature []string
@@ -17,14 +17,13 @@ func FindCategory(split []float64, value float64) int {
 	return sort.Search(len(split), func(i int) bool { return split[i] >= value })
 }
 
-
 /* RawDataSet */
 type RawDataSet struct {
-	Samples []*RawSample
+	Samples     []*RawSample
 	FeatureKeys map[string]bool
 }
 
-func NewRawDataSet() *RawDataSet{
+func NewRawDataSet() *RawDataSet {
 	ret := RawDataSet{}
 	ret.Samples = []*RawSample{}
 	ret.FeatureKeys = make(map[string]bool)
@@ -35,12 +34,12 @@ func (d *RawDataSet) AddSample(sample *RawSample) {
 	d.Samples = append(d.Samples, sample)
 }
 
-func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []CombinedFeature) *DataSet{
+func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []CombinedFeature) *DataSet {
 	out_data := NewDataSet()
 	for _, sample := range d.Samples {
 		out_sample := NewSample()
 		out_sample.Label = sample.Label
-		if splits != nil{
+		if splits != nil {
 			for fkey_str, fvalue_str := range sample.Features {
 				fkey := ""
 				fvalue := 0.0
@@ -53,7 +52,7 @@ func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []Combi
 					} else {
 						fvalue = util.ParseFloat64(fvalue_str)
 					}
-					out_sample.AddFeature(Feature{Id:util.Hash(fkey), Value:fvalue})
+					out_sample.AddFeature(Feature{Id: util.Hash(fkey), Value: fvalue})
 				}
 			}
 		}
@@ -65,7 +64,7 @@ func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []Combi
 				fkey += sample.GetFeatureValue(ckey)
 				fkey += "_"
 			}
-			out_sample.AddFeature(Feature{Id:util.Hash(fkey), Value:1.0})
+			out_sample.AddFeature(Feature{Id: util.Hash(fkey), Value: 1.0})
 		}
 		out_data.AddSample(out_sample)
 	}
@@ -112,7 +111,7 @@ func (d *RawDataSet) Load(path string) error {
 
 /* DataSet */
 type DataSet struct {
-	Samples []*Sample
+	Samples   []*Sample
 	max_label int
 }
 
@@ -181,14 +180,14 @@ func RemoveLowFreqFeatures(dataset *DataSet, threshold float64) {
 	freq := NewVector()
 
 	for _, sample := range dataset.Samples {
-		for _, feature := range sample.Features{
+		for _, feature := range sample.Features {
 			freq.AddValue(feature.Id, 1.0)
 		}
 	}
 
 	for _, sample := range dataset.Samples {
 		features := []Feature{}
-		for _, feature := range sample.Features{
+		for _, feature := range sample.Features {
 			if freq.GetValue(feature.Id) > threshold {
 				features = append(features, feature)
 			}
@@ -200,7 +199,7 @@ func RemoveLowFreqFeatures(dataset *DataSet, threshold float64) {
 func (d *DataSet) Split(f func(int) bool) *DataSet {
 	out_data := NewDataSet()
 	for i, sample := range d.Samples {
-		if f(i){
+		if f(i) {
 			out_data.AddSample(sample)
 		}
 	}

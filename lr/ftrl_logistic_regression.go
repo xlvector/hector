@@ -1,35 +1,34 @@
 package lr
 
 import (
-	"math"
-	"strconv"
-	"os"
 	"bufio"
+	"github.com/hector/core"
+	"github.com/hector/util"
+	"math"
+	"os"
+	"strconv"
 	"strings"
-	"hector/util"
-	"hector/core"
 )
 
 type FTRLLogisticRegressionParams struct {
 	Alpha, Beta, Lambda1, Lambda2 float64
-	Steps int
+	Steps                         int
 }
 
 type FTRLFeatureWeight struct {
 	ni, zi float64
 }
 
-
 func (w *FTRLFeatureWeight) Wi(p FTRLLogisticRegressionParams) float64 {
 	wi := 0.0
 	if math.Abs(w.zi) > p.Lambda1 {
-		wi = (util.Signum(w.zi) * p.Lambda1 - w.zi) / (p.Lambda2 + (p.Beta + math.Sqrt(w.ni)) / p.Alpha);	
+		wi = (util.Signum(w.zi)*p.Lambda1 - w.zi) / (p.Lambda2 + (p.Beta+math.Sqrt(w.ni))/p.Alpha)
 	}
 	return wi
 }
 
 type FTRLLogisticRegression struct {
-	Model map[int64]FTRLFeatureWeight
+	Model  map[int64]FTRLFeatureWeight
 	Params FTRLLogisticRegressionParams
 }
 
@@ -62,12 +61,12 @@ func (algo *FTRLLogisticRegression) LoadModel(path string) {
 	}
 }
 
-func (algo *FTRLLogisticRegression) Predict(sample * core.Sample) float64 {
+func (algo *FTRLLogisticRegression) Predict(sample *core.Sample) float64 {
 	ret := 0.0
 	for _, feature := range sample.Features {
 		model_feature_value, ok := algo.Model[feature.Id]
 		if ok {
-			ret += model_feature_value.Wi(algo.Params) * feature.Value	
+			ret += model_feature_value.Wi(algo.Params) * feature.Value
 		}
 	}
 	return util.Sigmoid(ret)
@@ -83,14 +82,14 @@ func (algo *FTRLLogisticRegression) Init(params map[string]string) {
 	algo.Params.Steps = int(steps)
 }
 
-func (algo *FTRLLogisticRegression) Clear(){
+func (algo *FTRLLogisticRegression) Clear() {
 	algo.Model = nil
 	algo.Model = make(map[int64]FTRLFeatureWeight)
 }
 
-func (algo *FTRLLogisticRegression) Train(dataset * core.DataSet) {
+func (algo *FTRLLogisticRegression) Train(dataset *core.DataSet) {
 	for step := 0; step < algo.Params.Steps; step++ {
-		for _,sample := range dataset.Samples {
+		for _, sample := range dataset.Samples {
 			prediction := algo.Predict(sample)
 			err := sample.LabelDoubleValue() - prediction
 			for _, feature := range sample.Features {
@@ -101,9 +100,9 @@ func (algo *FTRLLogisticRegression) Train(dataset * core.DataSet) {
 				zi := model_feature_value.zi
 				ni := model_feature_value.ni
 				gi := -1 * err * feature.Value
-				sigma := (math.Sqrt(ni + gi * gi) - math.Sqrt(ni)) / algo.Params.Alpha
+				sigma := (math.Sqrt(ni+gi*gi) - math.Sqrt(ni)) / algo.Params.Alpha
 				wi := model_feature_value.Wi(algo.Params)
-				zi += gi - sigma * wi
+				zi += gi - sigma*wi
 				ni += gi * gi
 				algo.Model[feature.Id] = FTRLFeatureWeight{zi: zi, ni: ni}
 			}

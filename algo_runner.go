@@ -9,11 +9,11 @@ Currently, it only support algorithms which can solve binary classification prob
 package hector
 
 import (
-	"strconv"
+	"github.com/hector/algo"
+	"github.com/hector/core"
+	"github.com/hector/eval"
 	"os"
-	"hector/core"
-	"hector/algo"
-	"hector/eval"
+	"strconv"
 )
 
 func AlgorithmRun(classifier algo.Classifier, train_path string, test_path string, pred_path string, params map[string]string) (float64, []*eval.LabelPrediction, error) {
@@ -21,14 +21,14 @@ func AlgorithmRun(classifier algo.Classifier, train_path string, test_path strin
 	train_dataset := core.NewDataSet()
 
 	err := train_dataset.Load(train_path, global)
-	
-	if err != nil{
+
+	if err != nil {
 		return 0.5, nil, err
 	}
-	
+
 	test_dataset := core.NewDataSet()
 	err = test_dataset.Load(test_path, global)
-	if err != nil{
+	if err != nil {
 		return 0.5, nil, err
 	}
 	classifier.Init(params)
@@ -37,13 +37,13 @@ func AlgorithmRun(classifier algo.Classifier, train_path string, test_path strin
 	return auc, predictions, nil
 }
 
-func AlgorithmTrain(classifier algo.Classifier, train_path string, params map[string]string) (error) {
+func AlgorithmTrain(classifier algo.Classifier, train_path string, params map[string]string) error {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	train_dataset := core.NewDataSet()
 
 	err := train_dataset.Load(train_path, global)
-	
-	if err != nil{
+
+	if err != nil {
 		return err
 	}
 
@@ -61,7 +61,7 @@ func AlgorithmTrain(classifier algo.Classifier, train_path string, params map[st
 
 func AlgorithmTest(classifier algo.Classifier, test_path string, pred_path string, params map[string]string) (float64, []*eval.LabelPrediction, error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
-	
+
 	model_path, _ := params["model"]
 	classifier.Init(params)
 	if model_path != "" {
@@ -72,41 +72,40 @@ func AlgorithmTest(classifier algo.Classifier, test_path string, pred_path strin
 
 	test_dataset := core.NewDataSet()
 	err := test_dataset.Load(test_path, global)
-	if err != nil{
+	if err != nil {
 		return 0.0, nil, err
 	}
-	
+
 	auc, predictions := AlgorithmRunOnDataSet(classifier, nil, test_dataset, pred_path, params)
 
 	return auc, predictions, nil
 }
 
 func AlgorithmRunOnDataSet(classifier algo.Classifier, train_dataset, test_dataset *core.DataSet, pred_path string, params map[string]string) (float64, []*eval.LabelPrediction) {
-	
+
 	if train_dataset != nil {
 		classifier.Train(train_dataset)
 	}
 
 	predictions := []*eval.LabelPrediction{}
 	var pred_file *os.File
-	if pred_path != ""{
+	if pred_path != "" {
 		pred_file, _ = os.Create(pred_path)
 	}
-	for _,sample := range test_dataset.Samples {
+	for _, sample := range test_dataset.Samples {
 		prediction := classifier.Predict(sample)
-		if pred_file != nil{
+		if pred_file != nil {
 			pred_file.WriteString(strconv.FormatFloat(prediction, 'g', 5, 64) + "\n")
 		}
 		predictions = append(predictions, &(eval.LabelPrediction{Label: sample.Label, Prediction: prediction}))
 	}
-	if pred_path != ""{
+	if pred_path != "" {
 		defer pred_file.Close()
 	}
-		
+
 	auc := eval.AUC(predictions)
 	return auc, predictions
 }
-
 
 /* Regression */
 func RegAlgorithmRun(regressor algo.Regressor, train_path string, test_path string, pred_path string, params map[string]string) (float64, []*eval.RealPrediction, error) {
@@ -114,14 +113,14 @@ func RegAlgorithmRun(regressor algo.Regressor, train_path string, test_path stri
 	train_dataset := core.NewRealDataSet()
 
 	err := train_dataset.Load(train_path, global)
-	
-	if err != nil{
+
+	if err != nil {
 		return 0.5, nil, err
 	}
-	
+
 	test_dataset := core.NewRealDataSet()
 	err = test_dataset.Load(test_path, global)
-	if err != nil{
+	if err != nil {
 		return 0.5, nil, err
 	}
 	regressor.Init(params)
@@ -130,13 +129,13 @@ func RegAlgorithmRun(regressor algo.Regressor, train_path string, test_path stri
 	return rmse, predictions, nil
 }
 
-func RegAlgorithmTrain(regressor algo.Regressor, train_path string, params map[string]string) (error) {
+func RegAlgorithmTrain(regressor algo.Regressor, train_path string, params map[string]string) error {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	train_dataset := core.NewRealDataSet()
 
 	err := train_dataset.Load(train_path, global)
-	
-	if err != nil{
+
+	if err != nil {
 		return err
 	}
 
@@ -154,7 +153,7 @@ func RegAlgorithmTrain(regressor algo.Regressor, train_path string, params map[s
 
 func RegAlgorithmTest(regressor algo.Regressor, test_path string, pred_path string, params map[string]string) (float64, []*eval.RealPrediction, error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
-	
+
 	model_path, _ := params["model"]
 	regressor.Init(params)
 	if model_path != "" {
@@ -165,38 +164,37 @@ func RegAlgorithmTest(regressor algo.Regressor, test_path string, pred_path stri
 
 	test_dataset := core.NewRealDataSet()
 	err := test_dataset.Load(test_path, global)
-	if err != nil{
+	if err != nil {
 		return 0.0, nil, err
 	}
-	
+
 	rmse, predictions := RegAlgorithmRunOnDataSet(regressor, nil, test_dataset, pred_path, params)
 
 	return rmse, predictions, nil
 }
 
 func RegAlgorithmRunOnDataSet(regressor algo.Regressor, train_dataset, test_dataset *core.RealDataSet, pred_path string, params map[string]string) (float64, []*eval.RealPrediction) {
-	
+
 	if train_dataset != nil {
 		regressor.Train(train_dataset)
 	}
 
 	predictions := []*eval.RealPrediction{}
 	var pred_file *os.File
-	if pred_path != ""{
+	if pred_path != "" {
 		pred_file, _ = os.Create(pred_path)
 	}
-	for _,sample := range test_dataset.Samples {
+	for _, sample := range test_dataset.Samples {
 		prediction := regressor.Predict(sample)
-		if pred_file != nil{
+		if pred_file != nil {
 			pred_file.WriteString(strconv.FormatFloat(prediction, 'g', 5, 64) + "\n")
 		}
 		predictions = append(predictions, &eval.RealPrediction{Value: sample.Value, Prediction: prediction})
 	}
-	if pred_path != ""{
+	if pred_path != "" {
 		defer pred_file.Close()
 	}
-		
+
 	rmse := eval.RegRMSE(predictions)
 	return rmse, predictions
 }
-

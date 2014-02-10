@@ -1,21 +1,21 @@
 package dt
 
 import (
-	"strconv"
-	"math"
-	"fmt"
-	"os"
 	"bufio"
-	"hector/core"
+	"fmt"
+	"github.com/hector/core"
+	"math"
+	"os"
+	"strconv"
 )
 
 type GBDT struct {
-	dts []*RegressionTree
+	dts        []*RegressionTree
 	tree_count int
-	shrink float64
+	shrink     float64
 }
 
-func (self *GBDT) SaveModel(path string){
+func (self *GBDT) SaveModel(path string) {
 	file, _ := os.Create(path)
 	defer file.Close()
 	for _, dt := range self.dts {
@@ -25,7 +25,7 @@ func (self *GBDT) SaveModel(path string){
 	}
 }
 
-func (self *GBDT) LoadModel(path string){
+func (self *GBDT) LoadModel(path string) {
 	file, _ := os.Open(path)
 	defer file.Close()
 
@@ -47,9 +47,9 @@ func (self *GBDT) LoadModel(path string){
 }
 
 func (c *GBDT) Init(params map[string]string) {
-	tree_count,_ := strconv.ParseInt(params["tree-count"], 10, 64)
+	tree_count, _ := strconv.ParseInt(params["tree-count"], 10, 64)
 	c.tree_count = int(tree_count)
-	for i := 0; i < c.tree_count; i++{
+	for i := 0; i < c.tree_count; i++ {
 		dt := RegressionTree{}
 		dt.Init(params)
 		c.dts = append(c.dts, &dt)
@@ -67,7 +67,7 @@ func (c *GBDT) RMSE(dataset *core.DataSet) float64 {
 	return math.Sqrt(rmse / n)
 }
 
-func (c *GBDT) Train(dataset *core.DataSet){
+func (c *GBDT) Train(dataset *core.DataSet) {
 	for _, sample := range dataset.Samples {
 		sample.Prediction = sample.LabelDoubleValue()
 	}
@@ -76,7 +76,7 @@ func (c *GBDT) Train(dataset *core.DataSet){
 		for _, sample := range dataset.Samples {
 			sample.Prediction -= c.shrink * dt.Predict(sample)
 		}
-		if k % 10 == 0 {
+		if k%10 == 0 {
 			fmt.Println(c.RMSE(dataset))
 		}
 	}
@@ -89,4 +89,3 @@ func (c *GBDT) Predict(sample *core.Sample) float64 {
 	}
 	return ret
 }
-

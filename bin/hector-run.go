@@ -1,17 +1,17 @@
 package main
 
-import(
-	"hector"
+import (
 	"fmt"
+	"github.com/hector"
 )
 
-func main(){
+func main() {
 	train, test, pred, method, params := hector.PrepareParams()
-	
+
 	action, _ := params["action"]
 
 	classifier := hector.GetClassifier(method)
-	
+
 	if action == "" {
 		auc, _, _ := hector.AlgorithmRun(classifier, train, test, pred, params)
 		fmt.Println("AUC:")
