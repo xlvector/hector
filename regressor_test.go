@@ -1,6 +1,7 @@
-package algo
+package hector
 
 import (
+	"github.com/hector/core"
 	"testing"
 )
 
@@ -11,8 +12,8 @@ func TestRegressorOnSin(t *testing.T) {
 	params["dim"] = "1"
 
 	for _, algo := range algos {
-		train_dataset := SinusoidalDataSet(100)
-		test_dataset := SinusoidalDataSet(50)
+		train_dataset := core.SinusoidalDataSet(100)
+		test_dataset := core.SinusoidalDataSet(50)
 		regressor := GetRegressor(algo)
 		regressor.Init(params)
 		rmse, _ := RegAlgorithmRunOnDataSet(regressor, train_dataset, test_dataset, "", params)

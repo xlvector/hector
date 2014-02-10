@@ -1,11 +1,13 @@
-package algo
+package hector
 
 import (
+	"github.com/hector/core"
 	"testing"
 )
-func TestClassifiers(t *testing.T){
-	train_dataset := LinearDataSet(1000)
-	test_dataset := LinearDataSet(500)
+
+func TestClassifiers(t *testing.T) {
+	train_dataset := core.LinearDataSet(1000)
+	test_dataset := core.LinearDataSet(500)
 
 	algos := []string{"ep", "fm", "ftrl", "lr", "linear_svm", "lr_owlqn"}
 
@@ -55,8 +57,8 @@ func TestClassifiersOnXOR(t *testing.T) {
 	params["dt-sample-ratio"] = "1.0"
 
 	for _, algo := range algos {
-		train_dataset := XORDataSet(1000)
-		test_dataset := XORDataSet(500)
+		train_dataset := core.XORDataSet(1000)
+		test_dataset := core.XORDataSet(500)
 		classifier := GetClassifier(algo)
 		classifier.Init(params)
 		auc, _ := AlgorithmRunOnDataSet(classifier, train_dataset, test_dataset, "", params)
