@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hector"
+	"github.com/xlvector/hector"
 )
 
 func main() {

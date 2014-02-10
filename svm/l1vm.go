@@ -1,8 +1,8 @@
 package svm
 
 import (
-	"github.com/hector/core"
-	"github.com/hector/lr"
+	"github.com/xlvector/hector/core"
+	"github.com/xlvector/hector/lr"
 	"math"
 	"math/rand"
 	"strconv"

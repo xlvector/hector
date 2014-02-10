@@ -3,8 +3,8 @@ package dt
 import (
 	"container/list"
 	"fmt"
-	"github.com/hector/core"
-	"github.com/hector/util"
+	"github.com/xlvector/hector/core"
+	"github.com/xlvector/hector/util"
 	"math/rand"
 	"strconv"
 	"strings"

@@ -1,7 +1,7 @@
 package gp
 
 import (
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 	"math"
 )
 

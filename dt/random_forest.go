@@ -3,7 +3,7 @@ package dt
 import (
 	"bufio"
 	"fmt"
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 	"os"
 	"strconv"
 	"sync"

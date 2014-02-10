@@ -2,9 +2,9 @@ package combine
 
 import (
 	"fmt"
-	"github.com/hector/core"
-	"github.com/hector/eval"
-	"github.com/hector/lr"
+	"github.com/xlvector/hector/core"
+	"github.com/xlvector/hector/eval"
+	"github.com/xlvector/hector/lr"
 	"math/rand"
 )
 

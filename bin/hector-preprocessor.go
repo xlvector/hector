@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/hector"
-	"github.com/hector/core"
+	"github.com/xlvector/hector"
+	"github.com/xlvector/hector/core"
 	"log"
 	"os"
 )

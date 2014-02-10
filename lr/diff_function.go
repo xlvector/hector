@@ -1,7 +1,7 @@
 package lr
 
 import (
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 )
 
 // Description: function for minimizer such as LBFGS and OWLQN

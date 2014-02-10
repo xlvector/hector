@@ -3,7 +3,7 @@ package dt
 import (
 	"bufio"
 	"container/list"
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 	"io/ioutil"
 	"os"
 	"sort"

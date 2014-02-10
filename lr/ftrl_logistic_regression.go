@@ -2,8 +2,8 @@ package lr
 
 import (
 	"bufio"
-	"github.com/hector/core"
-	"github.com/hector/util"
+	"github.com/xlvector/hector/core"
+	"github.com/xlvector/hector/util"
 	"math"
 	"os"
 	"strconv"

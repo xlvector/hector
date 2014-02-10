@@ -2,7 +2,7 @@ package lr
 
 import (
 	"fmt"
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 )
 
 /**

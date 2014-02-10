@@ -2,7 +2,7 @@ package svm
 
 import (
 	"fmt"
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 	"math"
 	"math/rand"
 	"strconv"

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"container/list"
 	"fmt"
-	"github.com/hector/core"
+	"github.com/xlvector/hector/core"
 	"io/ioutil"
 	"math"
 	"math/rand"

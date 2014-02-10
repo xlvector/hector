@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/hector/util"
+	"github.com/xlvector/hector/util"
 	"math"
 	"math/rand"
 	"strconv"
