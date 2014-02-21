@@ -21,5 +21,8 @@ func Hash(str string) int64 {
 		h *= 601840361
 		h += int64(ch)
 	}
+	if h < 0 {
+		return -1 * h;
+	}
 	return h
 }

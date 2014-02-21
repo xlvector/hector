@@ -3,6 +3,7 @@ package core
 import (
 	"bufio"
 	"github.com/xlvector/hector/util"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -152,7 +153,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 				kv := strings.Split(tk, ":")
 				feature_id, err := strconv.ParseInt(kv[0], 10, 64)
 				if err != nil {
-					break
+					feature_id = util.Hash(kv[0])
 				}
 				feature_value := 1.0
 				if len(kv) > 1 {
@@ -173,6 +174,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 	if scanner.Err() != nil {
 		return scanner.Err()
 	}
+	log.Println("dataset size : ", len(d.Samples))
 	return nil
 }
 

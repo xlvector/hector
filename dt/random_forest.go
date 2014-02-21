@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/xlvector/hector/core"
+	"log"
 	"os"
 	"strconv"
 	"sync"
@@ -49,6 +50,7 @@ func (self *RandomForest) LoadModel(path string) {
 			text += line + "\n"
 		}
 	}
+	log.Println("rf tree count :", len(self.trees))
 }
 
 func (dt *RandomForest) Init(params map[string]string) {
