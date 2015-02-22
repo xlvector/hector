@@ -23,13 +23,11 @@ Hector support libsvm-like data format. Following is an sample dataset
 
 ## Run as tools
 
-In src folder, you will find two program with main function : hector-cv.go and hector-run.go
-
 hector-cv.go will help you test one algorithm by cross validation in some dataset, you can run it by following steps:
 
-	cd src
-	go build hector-cv.go
-	./hector-cv --method [Method] --train [Data Path] --cv 10
+	go get github.com/xlvector/hector
+	go install github.com/xlvector/hector/hectorcv
+	hectorcv --method [Method] --train [Data Path] --cv 10
 
 Here, Method include
 
@@ -65,10 +63,10 @@ Then, you can use model file to test any test dataset:
 
 ## Binary Classification
 
-Following are datasets used in benchmarks:
+Following are datasets used in benchmarks, You can find them from [UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/)
 
-1. [heart](http://hector.xlvector.net/dataset/heart_scale.tsv.gz)
-2. [fourclass](http://hector.xlvector.net/dataset/fourclass_scale.tsv.gz)
+1. heart
+2. fourclass
 
 I will do 5-fold cross validation on the dataset, and use AUC as evaluation metric. Following are the results:
 
