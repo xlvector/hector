@@ -112,13 +112,15 @@ func (d *RawDataSet) Load(path string) error {
 
 /* DataSet */
 type DataSet struct {
-	Samples   []*Sample
-	max_label int
+	Samples          []*Sample
+	FeatureNameIdMap map[int64]string
+	max_label        int
 }
 
 func NewDataSet() *DataSet {
 	ret := DataSet{}
 	ret.Samples = []*Sample{}
+	ret.FeatureNameIdMap = make(map[int64]string)
 	return &ret
 }
 
@@ -155,6 +157,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 				if err != nil {
 					feature_id = util.Hash(kv[0])
 				}
+				d.FeatureNameIdMap[feature_id] = kv[0]
 				feature_value := 1.0
 				if len(kv) > 1 {
 					feature_value, err = strconv.ParseFloat(kv[1], 64)
