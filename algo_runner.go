@@ -16,7 +16,9 @@ import (
 	"strconv"
 )
 
-func AlgorithmRun(classifier algo.Classifier, train_path string, test_path string, pred_path string, params map[string]string) (float64, []*eval.LabelPrediction, error) {
+func AlgorithmRun(classifier algo.Classifier,
+	train_path string, test_path string, pred_path string,
+	params map[string]string) (float64, []*eval.LabelPrediction, error) {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	train_dataset := core.NewDataSet()
 
@@ -32,12 +34,14 @@ func AlgorithmRun(classifier algo.Classifier, train_path string, test_path strin
 		return 0.5, nil, err
 	}
 	classifier.Init(params)
-	auc, predictions := AlgorithmRunOnDataSet(classifier, train_dataset, test_dataset, pred_path, params)
+	auc, predictions := AlgorithmRunOnDataSet(classifier, train_dataset,
+		test_dataset, pred_path, params)
 
 	return auc, predictions, nil
 }
 
-func AlgorithmTrain(classifier algo.Classifier, train_path string, params map[string]string) error {
+func AlgorithmTrain(classifier algo.Classifier, train_path string,
+	params map[string]string) error {
 	global, _ := strconv.ParseInt(params["global"], 10, 64)
 	train_dataset := core.NewDataSet()
 
