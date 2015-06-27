@@ -37,6 +37,7 @@ func (d *RawDataSet) AddSample(sample *RawSample) {
 
 func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []CombinedFeature) *DataSet {
 	out_data := NewDataSet()
+	fm := make(map[string]int64)
 	for _, sample := range d.Samples {
 		out_sample := NewSample()
 		out_sample.Label = sample.Label
@@ -53,6 +54,7 @@ func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []Combi
 					} else {
 						fvalue = util.ParseFloat64(fvalue_str)
 					}
+					fm[fkey] = util.Hash(fkey)
 					out_sample.AddFeature(Feature{Id: util.Hash(fkey), Value: fvalue})
 				}
 			}
@@ -65,10 +67,18 @@ func (d *RawDataSet) ToDataSet(splits map[string][]float64, combinations []Combi
 				fkey += sample.GetFeatureValue(ckey)
 				fkey += "_"
 			}
+			fm[fkey] = util.Hash(fkey)
 			out_sample.AddFeature(Feature{Id: util.Hash(fkey), Value: 1.0})
 		}
 		out_data.AddSample(out_sample)
 	}
+	f, _ := os.Create("features.tsv")
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	for k, v := range fm {
+		w.WriteString(k + "\t" + strconv.FormatInt(v, 10) + "\n")
+	}
+
 	return out_data
 }
 
@@ -132,6 +142,7 @@ func (d *DataSet) AddSample(sample *Sample) {
 }
 
 func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
+	fm := make(map[string]int64)
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -156,6 +167,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 				feature_id, err := strconv.ParseInt(kv[0], 10, 64)
 				if err != nil {
 					feature_id = util.Hash(kv[0])
+					fm[kv[0]] = feature_id
 				}
 				d.FeatureNameIdMap[feature_id] = kv[0]
 				feature_value := 1.0
@@ -177,6 +189,13 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 	if scanner.Err() != nil {
 		return scanner.Err()
 	}
+	f, _ := os.Create("features.tsv")
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	for k, v := range fm {
+		w.WriteString(k + "\t" + strconv.FormatInt(v, 10) + "\n")
+	}
+
 	log.Println("dataset size : ", len(d.Samples))
 	return nil
 }
