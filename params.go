@@ -124,12 +124,14 @@ func PrepareParams() (string, string, string, string, map[string]string) {
 	core := flag.Int("core", 1, "core number when run program")
 	dt_sample_ratio := flag.String("dt-sample-ratio", "1.0", "sampling ratio when split feature in decision tree")
 	dim := flag.String("dim", "1", "input space dimension")
+	port := flag.String("port", "8080", "port")
 
 	flag.Parse()
 	runtime.GOMAXPROCS(*core)
 	fmt.Println(*train_path)
 	fmt.Println(*test_path)
 	fmt.Println(*method)
+	params["port"] = *port
 	params["verbose"] = strconv.FormatInt(int64(*verbose), 10)
 	params["learning-rate"] = *learning_rate
 	params["learning-rate-discount"] = *learning_rate_discount
