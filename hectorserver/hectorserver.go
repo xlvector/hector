@@ -43,12 +43,13 @@ func (c *ClassifierHandler) ServeHTTP(w http.ResponseWriter,
 	p := c.classifier.Predict(sample)
 	output, err := json.Marshal(map[string]interface{}{
 		"prediction": p,
+		"features":   fs,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, output)
+	fmt.Fprint(w, string(output))
 }
 
 func main() {
