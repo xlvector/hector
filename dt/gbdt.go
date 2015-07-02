@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/xlvector/hector/core"
+	"log"
 	"math"
 	"os"
 	"strconv"
@@ -44,6 +45,7 @@ func (self *GBDT) LoadModel(path string) {
 			text += line + "\n"
 		}
 	}
+	log.Println("tree count:", len(self.dts))
 }
 
 func (c *GBDT) Init(params map[string]string) {

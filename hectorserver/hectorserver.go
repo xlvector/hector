@@ -61,6 +61,7 @@ func main() {
 	if !ok {
 		log.Fatalln("please input model file")
 	}
+	ch.classifier.Init(params)
 	ch.classifier.LoadModel(model)
 	http.Handle("/predict", ch)
 	err := http.ListenAndServe(":"+params["port"], nil)
