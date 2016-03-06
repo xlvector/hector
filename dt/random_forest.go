@@ -38,13 +38,14 @@ func (self *RandomForest) LoadModel(path string) {
 	defer file.Close()
 
 	self.trees = []*Tree{}
-	scanner := bufio.NewScanner(file)
+	reader := bufio.NewReader(file)
 	text := ""
-	for scanner.Scan() {
-		line := scanner.Text()
+	for {
+		line := reader.ReadString('\n')
 		if line == "#" {
 			tree := Tree{}
 			tree.FromString(text)
+			log.Println("begin build tree")
 			self.trees = append(self.trees, &tree)
 			text = ""
 		} else {
