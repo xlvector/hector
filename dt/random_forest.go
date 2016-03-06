@@ -3,11 +3,12 @@ package dt
 import (
 	"bufio"
 	"fmt"
-	"github.com/xlvector/hector/core"
 	"log"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/xlvector/hector/core"
 )
 
 type RandomForestParams struct {
