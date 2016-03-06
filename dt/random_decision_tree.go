@@ -70,8 +70,7 @@ func (t *Tree) ToString() []byte {
 	return sb.Bytes()
 }
 
-func (t *Tree) FromString(buf string) {
-	lines := strings.Split(buf, "\n")
+func (t *Tree) fromString(lines []string) {
 	size, _ := strconv.Atoi(lines[0])
 	t.nodes = make([]*TreeNode, size+1, size+1)
 	log.Println("begin create tree: ", len(lines))
@@ -93,6 +92,11 @@ func (t *Tree) FromString(buf string) {
 		node.feature_split.Value, _ = strconv.ParseFloat(tks[7], 64)
 		t.nodes[i] = &node
 	}
+}
+
+func (t *Tree) FromString(buf string) {
+	lines := strings.Split(buf, "\n")
+	t.fromString(lines)
 }
 
 type RDTParams struct {

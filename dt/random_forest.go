@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/xlvector/hector/core"
@@ -39,21 +40,21 @@ func (self *RandomForest) LoadModel(path string) {
 
 	self.trees = []*Tree{}
 	reader := bufio.NewReader(file)
-	text := ""
+	text := []string{}
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			break
 		}
-		log.Println(line)
+		line = strings.TrimSpace(line)
 		if line == "#" {
 			tree := Tree{}
-			tree.FromString(text)
+			tree.fromString(text)
 			log.Println("begin build tree")
 			self.trees = append(self.trees, &tree)
-			text = ""
+			text = []string{}
 		} else {
-			text += line + "\n"
+			text = append(text, line)
 		}
 	}
 	log.Println("rf tree count :", len(self.trees))
