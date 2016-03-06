@@ -41,7 +41,10 @@ func (self *RandomForest) LoadModel(path string) {
 	reader := bufio.NewReader(file)
 	text := ""
 	for {
-		line := reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
 		if line == "#" {
 			tree := Tree{}
 			tree.FromString(text)
