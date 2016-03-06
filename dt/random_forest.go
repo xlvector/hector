@@ -45,6 +45,7 @@ func (self *RandomForest) LoadModel(path string) {
 		if err != nil {
 			break
 		}
+		log.Println(line)
 		if line == "#" {
 			tree := Tree{}
 			tree.FromString(text)
