@@ -50,7 +50,6 @@ func (self *RandomForest) LoadModel(path string) {
 		if line == "#" {
 			tree := Tree{}
 			tree.fromString(text)
-			log.Println("begin build tree")
 			self.trees = append(self.trees, &tree)
 			text = []string{}
 		} else {

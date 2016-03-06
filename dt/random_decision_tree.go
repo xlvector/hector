@@ -3,7 +3,6 @@ package dt
 import (
 	"container/list"
 	"fmt"
-	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -73,7 +72,6 @@ func (t *Tree) ToString() []byte {
 func (t *Tree) fromString(lines []string) {
 	size, _ := strconv.Atoi(lines[0])
 	t.nodes = make([]*TreeNode, size+1, size+1)
-	log.Println("begin create tree: ", len(lines))
 	for _, line := range lines[1:] {
 		if len(line) == 0 {
 			break
