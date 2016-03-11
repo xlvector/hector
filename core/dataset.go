@@ -157,16 +157,24 @@ func (d *DataSet) AddSample(sample *Sample) {
 
 func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 	fm := make(map[string]int64)
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	ch := make(chan string, 1000)
+	go func() {
+		file, err := os.Open(path)
+		if err != nil {
+			return
+		}
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
 
-	for scanner.Scan() {
-		line := strings.Replace(scanner.Text(), " ", "\t", -1)
+		for scanner.Scan() {
+			line := strings.Replace(scanner.Text(), " ", "\t", -1)
+			ch <- line
+		}
+		close(ch)
+	}()
+
+	for line := range ch {
 		tks := strings.Split(line, "\t")
 		sample := Sample{Features: []Feature{}, Label: 0}
 		for i, tk := range tks {
@@ -199,9 +207,6 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 			sample.Features = append(sample.Features, Feature{global_bias_feature_id, 1.0})
 		}
 		d.AddSample(&sample)
-	}
-	if scanner.Err() != nil {
-		return scanner.Err()
 	}
 	f, _ := os.Create("features.tsv")
 	defer f.Close()
