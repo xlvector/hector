@@ -2,12 +2,13 @@ package core
 
 import (
 	"bufio"
-	"github.com/xlvector/hector/util"
 	"log"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/xlvector/hector/util"
 )
 
 type CombinedFeature []string
@@ -88,11 +89,21 @@ func (d *RawDataSet) Load(path string) error {
 		return err
 	}
 	defer file.Close()
+	ch := make(chan string, 1000)
+	go func() {
+		reader := bufio.NewReader(file)
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				break
+			}
+			ch <- line
+		}
+		close(ch)
+	}()
 
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := strings.Replace(scanner.Text(), " ", "\t", -1)
+	for line := range ch {
+		line = strings.Replace(line, " ", "\t", -1)
 		tks := strings.Split(line, "\t")
 		sample := NewRawSample()
 		for i, tk := range tks {
@@ -113,9 +124,6 @@ func (d *RawDataSet) Load(path string) error {
 			}
 		}
 		d.AddSample(sample)
-	}
-	if scanner.Err() != nil {
-		return scanner.Err()
 	}
 	return nil
 }
