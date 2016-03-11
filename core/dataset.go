@@ -2,6 +2,7 @@ package core
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"sort"
@@ -102,7 +103,12 @@ func (d *RawDataSet) Load(path string) error {
 		close(ch)
 	}()
 
+	n := 0
 	for line := range ch {
+		n += 1
+		if n%10000 == 0 {
+			fmt.Println(n, len(ch))
+		}
 		line = strings.Replace(line, " ", "\t", -1)
 		tks := strings.Split(line, "\t")
 		sample := NewRawSample()
