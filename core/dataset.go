@@ -161,17 +161,18 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 	ch := make(chan string, 1000)
 	go func() {
 		file, err := os.Open(path)
+		defer file.Close()
+		defer close(ch)
 		if err != nil {
 			return
 		}
-		defer file.Close()
+
 		scanner := bufio.NewScanner(file)
 
 		for scanner.Scan() {
 			line := strings.Replace(scanner.Text(), " ", "\t", -1)
 			ch <- line
 		}
-		close(ch)
 	}()
 
 	for line := range ch {
