@@ -164,6 +164,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 		defer file.Close()
 		defer close(ch)
 		if err != nil {
+			log.Println("load file fail: ", err)
 			return
 		}
 
