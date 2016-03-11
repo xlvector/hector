@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/xlvector/hector"
-	"github.com/xlvector/hector/core"
 	"log"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"strconv"
+
+	"github.com/xlvector/hector"
+	"github.com/xlvector/hector/core"
 )
 
 func SplitFile(dataset *core.DataSet, total, part int) (*core.DataSet, *core.DataSet) {
@@ -31,7 +33,7 @@ func main() {
 	profile, _ := params["profile"]
 	dataset := core.NewDataSet()
 	dataset.Load(train_path, global)
-
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	cv, _ := strconv.ParseInt(params["cv"], 10, 32)
 	total := int(cv)
 

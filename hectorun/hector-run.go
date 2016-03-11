@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"runtime"
+
 	"github.com/xlvector/hector"
 )
 
@@ -11,7 +13,7 @@ func main() {
 	action, _ := params["action"]
 
 	classifier := hector.GetClassifier(method)
-
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	if action == "" {
 		auc, _, _ := hector.AlgorithmRun(classifier, train, test, pred, params)
 		fmt.Println("AUC:")
