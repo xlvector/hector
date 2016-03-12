@@ -134,6 +134,70 @@ func (d *RawDataSet) Load(path string) error {
 	return nil
 }
 
+/*Streaming*/
+type StreamingDataSet struct {
+	Samples chan *Sample
+}
+
+func NewStreamingDataSet() *StreamingDataSet {
+	return &StreamingDataSet{
+		Samples: make(chan *Sample, 10000),
+	}
+}
+
+func (d *StreamingDataSet) AddSample(sample *Sample) {
+	d.Samples <- sample
+}
+
+func (d *StreamingDataSet) Load(path string, global_bias_feature_id int64) error {
+	file, err := os.Open(path)
+	defer file.Close()
+	if err != nil {
+		log.Fatalln("load file fail: ", err)
+	}
+	reader := bufio.NewReader(file)
+	n := 0
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+		n += 1
+		if n%10000 == 0 {
+			log.Println("process line: ", n)
+		}
+		tks := strings.Split(line, "\t")
+		sample := Sample{Features: make([]Feature, 0, 20), Label: 0}
+		for i, tk := range tks {
+			if i == 0 {
+				label, _ := strconv.Atoi(tk)
+				sample.Label = label
+			} else {
+				kv := strings.Split(tk, ":")
+				feature_id, err := strconv.ParseInt(kv[0], 10, 64)
+				if err != nil {
+					log.Fatalln("wrong feature: ", kv[0])
+				}
+				feature_value := 1.0
+				if len(kv) > 1 {
+					feature_value, err = strconv.ParseFloat(kv[1], 64)
+					if err != nil {
+						log.Fatalln("wrong value: ", kv[1])
+					}
+				}
+				feature := Feature{feature_id, feature_value}
+				sample.Features = append(sample.Features, feature)
+			}
+		}
+		if global_bias_feature_id >= 0 {
+			sample.Features = append(sample.Features, Feature{global_bias_feature_id, 1.0})
+		}
+		d.AddSample(&sample)
+	}
+	close(d.Samples)
+	return nil
+}
+
 /* DataSet */
 type DataSet struct {
 	Samples          []*Sample
@@ -178,7 +242,7 @@ func (d *DataSet) Load(path string, global_bias_feature_id int64) error {
 
 	for line := range ch {
 		tks := strings.Split(line, "\t")
-		sample := Sample{Features: []Feature{}, Label: 0}
+		sample := Sample{Features: make([]Feature, 0, 20), Label: 0}
 		for i, tk := range tks {
 			if i == 0 {
 				label, _ := strconv.Atoi(tk)

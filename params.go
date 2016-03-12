@@ -3,6 +3,11 @@ package hector
 import (
 	"flag"
 	"fmt"
+	"math/rand"
+	"runtime"
+	"strconv"
+	"time"
+
 	"github.com/xlvector/hector/algo"
 	"github.com/xlvector/hector/ann"
 	"github.com/xlvector/hector/dt"
@@ -11,10 +16,6 @@ import (
 	"github.com/xlvector/hector/lr"
 	"github.com/xlvector/hector/sa"
 	"github.com/xlvector/hector/svm"
-	"math/rand"
-	"runtime"
-	"strconv"
-	"time"
 )
 
 func GetMutliClassClassifier(method string) algo.MultiClassClassifier {
