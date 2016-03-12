@@ -61,7 +61,7 @@ func (algo *LogisticRegressionStream) Train(dataset *core.StreamingDataSet) {
 		totalErr += math.Abs(err)
 		n += 1
 		if n%100000 == 0 {
-			log.Println("proc ", n, totalErr/100000.0, sample.LabelDoubleValue(), prediction, algo.Model)
+			log.Println("proc ", n, totalErr/100000.0, sample.LabelDoubleValue(), prediction)
 			totalErr = 0.0
 		}
 		for _, feature := range sample.Features {
