@@ -166,7 +166,7 @@ func (d *StreamingDataSet) Load(path string, global_bias_feature_id int64) error
 		if n%10000 == 0 {
 			log.Println("process line: ", n)
 		}
-		tks := strings.Split(line, "\t")
+		tks := strings.Split(strings.TrimSpace(line), "\t")
 		sample := Sample{Features: make([]Feature, 0, 20), Label: 0}
 		for i, tk := range tks {
 			if i == 0 {
