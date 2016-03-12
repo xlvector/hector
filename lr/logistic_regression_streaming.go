@@ -3,6 +3,7 @@ package lr
 import (
 	"bufio"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -57,7 +58,7 @@ func (algo *LogisticRegressionStream) Train(dataset *core.StreamingDataSet) {
 	for sample := range dataset.Samples {
 		prediction := algo.Predict(sample)
 		err := sample.LabelDoubleValue() - prediction
-		totalErr += err
+		totalErr += math.Abs(err)
 		n += 1
 		if n%100000 == 0 {
 			log.Println("proc ", n, totalErr/100000.0)
