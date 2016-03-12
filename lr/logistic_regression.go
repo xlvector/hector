@@ -2,11 +2,12 @@ package lr
 
 import (
 	"bufio"
-	"github.com/xlvector/hector/core"
-	"github.com/xlvector/hector/util"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/xlvector/hector/core"
+	"github.com/xlvector/hector/util"
 )
 
 type LogisticRegressionParams struct {
@@ -34,7 +35,7 @@ func (algo *LogisticRegression) SaveModel(path string) {
 func (algo *LogisticRegression) LoadModel(path string) {
 	file, _ := os.Open(path)
 	defer file.Close()
-
+	algo.Model = make(map[int64]float64)
 	scaner := bufio.NewScanner(file)
 	for scaner.Scan() {
 		line := scaner.Text()
