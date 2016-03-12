@@ -156,15 +156,10 @@ func (d *StreamingDataSet) Load(path string, global_bias_feature_id int64) error
 		log.Fatalln("load file fail: ", err)
 	}
 	reader := bufio.NewReader(file)
-	n := 0
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			break
-		}
-		n += 1
-		if n%100000 == 0 {
-			log.Println("process line: ", n)
 		}
 		tks := strings.Split(strings.TrimSpace(line), "\t")
 		sample := Sample{Features: make([]Feature, 0, 20), Label: 0}

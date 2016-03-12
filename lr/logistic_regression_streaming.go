@@ -2,6 +2,7 @@ package lr
 
 import (
 	"bufio"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -51,9 +52,17 @@ func (algo *LogisticRegressionStream) Init(params map[string]string) {
 
 func (algo *LogisticRegressionStream) Train(dataset *core.StreamingDataSet) {
 	algo.Model = make(map[int64]float64)
+	totalErr := 0.0
+	n := 0
 	for sample := range dataset.Samples {
 		prediction := algo.Predict(sample)
 		err := sample.LabelDoubleValue() - prediction
+		totalErr += err
+		n += 1
+		if n%100000 == 0 {
+			log.Println("proc ", n, totalErr/100000.0)
+			totalErr = 0.0
+		}
 		for _, feature := range sample.Features {
 			model_feature_value, ok := algo.Model[feature.Id]
 			if !ok {
