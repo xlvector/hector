@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 
 	"github.com/xlvector/hector"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	train, test, pred, _, params := hector.PrepareParams()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	action, _ := params["action"]
 	runtime.GOMAXPROCS(runtime.NumCPU())
