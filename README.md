@@ -32,16 +32,16 @@ hector-cv.go will help you test one algorithm by cross validation in some datase
 Here, Method include
 
 1. lr : logistic regression with SGD and L2 regularization.
-2. ftrl : FTRL-proximal logistic regreesion with L1 regularization. Please review this paper for more details "Ad Click Prediction: a View from the Trenches".
+2. ftrl : FTRL-proximal logistic regression with L1 regularization. Please review this paper for more details "Ad Click Prediction: a View from the Trenches".
 3. ep : bayesian logistic regression with expectation propagation. Please review this paper for more details "Web-Scale Bayesian Click-Through Rate Prediction for Sponsored Search Advertising in Microsoft’s Bing Search Engine"
 4. fm : factorization machine
-5. cart : classifiaction tree
+5. cart : classification tree
 6. cart-regression : regression tree
 7. rf : random forest
 8. rdt : random decision trees
-9. gbdt : gradient boosting decisio tree
+9. gbdt : gradient boosting decision tree
 10. linear-svm : linear svm with L1 regularization
-11. svm : svm optimizaed by SMO (current, its linear svm)
+11. svm : svm optimized by SMO (current, its linear svm)
 12. l1vm : vector machine with L1 regularization by RBF kernel
 13. knn : k-nearest neighbor classification
 
